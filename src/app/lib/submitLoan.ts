@@ -1,9 +1,159 @@
-import { Blockfrost, Lucid } from "lucid-cardano";
+import { WalletApi, Lucid, SpendingValidator, Data } from "lucid-cardano";
+import { getLucid } from "./lucid";
 
-const submitLoan = async (blockfrost: Blockfrost, lucid: Lucid, loan: any) => {
-  // Submit loan
-  const tx = await lucid.submitLoan(loan);
+let lucid: Lucid;
 
-  // Wait for the transaction to be included in a block
-  await blockfrost.waitForTx(tx.txHash);
+(async () => {
+  lucid = await getLucid();
+})();
+
+//Temp Script
+const alwaysSucceedScript: SpendingValidator = {
+  type: "PlutusV2",
+  script: "49480100002221200101",
 };
+
+async function formatSubmitLoanDatum(
+  apr: number,
+  daysOfLoan: number,
+  loanAmountInEachUTXO: number,
+  loanAsset: string,
+  collateralAsset: string,
+  collateralPercentage: number,
+  interestAsset: string,
+  walletAddress: string
+) {
+  const { Data, fromText } = await import("lucid-cardano");
+
+  const interestAmount = (loanAmountInEachUTXO * apr) / 100;
+  const collateralAmount = (loanAmountInEachUTXO * collateralPercentage) / 100;
+
+  const DatumSchema = Data.Object({
+    collateralAsset: Data.Bytes(),
+    collateralAmount: Data.Integer(),
+    interestAsset: Data.Bytes(),
+    interestAmount: Data.Integer(),
+    loan_asset: Data.Bytes(),
+    loan_amount: Data.Integer(),
+    loan_duration: Data.Integer(),
+    loan_owner_address: Data.Bytes(),
+  });
+
+  type Datum = Data.Static<typeof DatumSchema>;
+  const Datum = DatumSchema as unknown as Datum;
+
+  const datum: Datum = {
+    collateralAsset: fromText(collateralAsset),
+    collateralAmount: BigInt(collateralAmount),
+    interestAsset: fromText(interestAsset),
+    interestAmount: BigInt(interestAmount),
+    loan_asset: fromText(loanAsset),
+    loan_amount: BigInt(loanAmountInEachUTXO),
+    loan_duration: BigInt(daysOfLoan),
+    loan_owner_address: fromText(walletAddress),
+  };
+
+  const formattedDatum = Data.to(datum, Datum);
+
+  return formattedDatum;
+}
+
+export async function submitAssetLoanTransaction(
+  api: WalletApi,
+  apr: number,
+  daysOfLoan: number,
+  loanAmount: number,
+  loanAsset: string,
+  collateralAsset: string,
+  collateralPercentage: number,
+  interestAsset: string
+) {
+  const loanAmountInEachUTXO = loanAmount / 10;
+  //Min Token Amount needs to be higher than 10 or else it will fail
+  //because collateral amount will not be a whole number
+  if (loanAmountInEachUTXO < 10) {
+    throw new Error("Amount too low");
+  }
+
+  const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
+
+  lucid.selectWallet(api);
+  const walletAddress = await lucid.wallet.address();
+
+  let tx = lucid.newTx();
+  for (let i = 0; i < 10; i++) {
+    const datum = await formatSubmitLoanDatum(
+      apr,
+      daysOfLoan,
+      loanAmountInEachUTXO,
+      loanAsset,
+      collateralAsset,
+      collateralPercentage,
+      interestAsset,
+      walletAddress
+    );
+
+    tx.payToContract(
+      tempscriptAddress,
+      { inline: datum },
+      {
+        [loanAsset]: BigInt(loanAmountInEachUTXO),
+      }
+    );
+  }
+
+  const completedTx = await tx.complete();
+  const signedTx = await completedTx.sign().complete();
+  const txHash = await signedTx.submit();
+  return txHash;
+}
+
+export async function submitADALoanTransaction(
+  api: WalletApi,
+  apr: number,
+  daysOfLoan: number,
+  loanAmount: number,
+  collateralAsset: string,
+  collateralPercentage: number,
+  interestAsset: string
+) {
+  const loanADAAmountInEachUTXO = loanAmount / 10;
+  // Min ADA Amount needs to be higher than 1
+  if (loanADAAmountInEachUTXO < 1) {
+    throw new Error("Amount too low");
+  }
+  const loanLovelaceAmountInEachUTXO = loanADAAmountInEachUTXO * 1000000;
+  const loanAsset = "lovelace";
+
+  const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
+
+  lucid.selectWallet(api);
+  const walletAddress = await lucid.wallet.address();
+
+  let tx = lucid.newTx();
+  for (let i = 0; i < 10; i++) {
+    const datum = await formatSubmitLoanDatum(
+      apr,
+      daysOfLoan,
+      loanLovelaceAmountInEachUTXO,
+      loanAsset,
+      collateralAsset,
+      collateralPercentage,
+      interestAsset,
+      walletAddress
+    );
+
+    tx.payToContract(
+      tempscriptAddress,
+      { inline: datum },
+      {
+        lovelace: BigInt(loanLovelaceAmountInEachUTXO),
+      }
+    );
+  }
+
+  const completedTx = await tx.complete();
+  const signedTx = await completedTx.sign().complete();
+  const txHash = await signedTx.submit();
+  return txHash;
+}
