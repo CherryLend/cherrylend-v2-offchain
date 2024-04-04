@@ -13,14 +13,9 @@ export async function getWalletAddress(api: WalletApi) {
   return walletAddress;
 }
 
-export async function getUtxos(api: WalletApi) {
-  lucid.selectWallet(api);
-  const utxos = await lucid.wallet.getUtxos();
-  return utxos;
-}
-
 export async function getBalance(api: WalletApi) {
-  const UTXOs = await getUtxos(api);
+  lucid.selectWallet(api);
+  const UTXOs = await lucid.wallet.getUtxos();
   const balance = UTXOs.reduce(
     (acc, utxo) => acc + Number(utxo.assets.lovelace),
     0
@@ -29,16 +24,4 @@ export async function getBalance(api: WalletApi) {
   const balanceInAda = balance / lovelaceToAda;
 
   return Math.round(balanceInAda);
-}
-
-export async function signTx(api: WalletApi, tx: any) {
-  lucid.selectWallet(api);
-  const signedTx = await lucid.wallet.signTx(tx);
-  return signedTx;
-}
-
-export async function submitTx(api: WalletApi, tx: any) {
-  lucid.selectWallet(api);
-  const txId = await lucid.wallet.submitTx(tx);
-  return txId;
 }

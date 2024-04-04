@@ -3,7 +3,7 @@ export async function getLucid() {
   const lucid = await Lucid.new(
     new Blockfrost(
       "https://cardano-preprod.blockfrost.io/api/v0",
-      "preprod5BcMnGu4evMGBBOnHIZ3VxsXIsRQdEwB"
+      process.env.BLOCKFROST_API_KEY
     ),
     "Preprod"
   );
