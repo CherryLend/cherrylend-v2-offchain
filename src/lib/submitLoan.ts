@@ -1,4 +1,4 @@
-import { WalletApi, Lucid, SpendingValidator, Data } from "lucid-cardano";
+import { Lucid, SpendingValidator, Data } from "lucid-cardano";
 import { getLucid } from "./lucid";
 
 let lucid: Lucid;
@@ -21,7 +21,7 @@ async function formatSubmitLoanDatum(
   collateralAsset: string,
   collateralPercentage: number,
   interestAsset: string,
-  walletAddress: string
+  walletAddressHash: string
 ) {
   const { Data, fromText } = await import("lucid-cardano");
 
@@ -36,7 +36,7 @@ async function formatSubmitLoanDatum(
     loan_asset: Data.Bytes(),
     loan_amount: Data.Integer(),
     loan_duration: Data.Integer(),
-    loan_owner_address: Data.Bytes(),
+    loan_owner_address_hash: Data.Bytes(),
   });
 
   type Datum = Data.Static<typeof DatumSchema>;
@@ -50,7 +50,7 @@ async function formatSubmitLoanDatum(
     loan_asset: fromText(loanAsset),
     loan_amount: BigInt(loanAmountInEachUTXO),
     loan_duration: BigInt(daysOfLoan),
-    loan_owner_address: fromText(walletAddress),
+    loan_owner_address_hash: fromText(walletAddressHash),
   };
 
   const formattedDatum = Data.to(datum, Datum);
@@ -58,8 +58,8 @@ async function formatSubmitLoanDatum(
   return formattedDatum;
 }
 
-export async function submitAssetLoanTransaction(
-  api: WalletApi,
+export async function getOfferAssetLoanTx(
+  walletAddressHash: string,
   apr: number,
   daysOfLoan: number,
   loanAmount: number,
@@ -77,9 +77,6 @@ export async function submitAssetLoanTransaction(
 
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
 
-  lucid.selectWallet(api);
-  const walletAddress = await lucid.wallet.address();
-
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
     const datum = await formatSubmitLoanDatum(
@@ -90,7 +87,7 @@ export async function submitAssetLoanTransaction(
       collateralAsset,
       collateralPercentage,
       interestAsset,
-      walletAddress
+      walletAddressHash
     );
 
     tx.payToContract(
@@ -102,14 +99,11 @@ export async function submitAssetLoanTransaction(
     );
   }
 
-  const completedTx = await tx.complete();
-  const signedTx = await completedTx.sign().complete();
-  const txHash = await signedTx.submit();
-  return txHash;
+  return tx;
 }
 
-export async function submitADALoanTransaction(
-  api: WalletApi,
+export async function getOfferADALoanTx(
+  walletAddressHash: string,
   apr: number,
   daysOfLoan: number,
   loanAmount: number,
@@ -127,9 +121,6 @@ export async function submitADALoanTransaction(
 
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
 
-  lucid.selectWallet(api);
-  const walletAddress = await lucid.wallet.address();
-
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
     const datum = await formatSubmitLoanDatum(
@@ -140,7 +131,7 @@ export async function submitADALoanTransaction(
       collateralAsset,
       collateralPercentage,
       interestAsset,
-      walletAddress
+      walletAddressHash
     );
 
     tx.payToContract(
@@ -152,8 +143,5 @@ export async function submitADALoanTransaction(
     );
   }
 
-  const completedTx = await tx.complete();
-  const signedTx = await completedTx.sign().complete();
-  const txHash = await signedTx.submit();
-  return txHash;
+  return tx;
 }

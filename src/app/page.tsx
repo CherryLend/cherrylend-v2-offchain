@@ -2,10 +2,8 @@
 import { useState } from "react";
 import { WalletApi } from "lucid-cardano";
 import { getBalance, getWalletAddress } from "./lib/wallet";
-import {
-  submitADALoanTransaction,
-  submitAssetLoanTransaction,
-} from "./lib/submitLoan";
+import { getOfferAssetLoanTx } from "./lib/submitLoan";
+import { getLucid } from "./lib/lucid";
 
 type Tab = "Lender" | "Borrower";
 type LenderSubTab =
@@ -27,6 +25,13 @@ export default function Home() {
   const [txId, setTxId] = useState<string>("");
 
   const submitLoan = async () => {
+    const lucid = await getLucid();
+    lucid.selectWallet(walletApi);
+
+    const walletAddressHash =
+      lucid.utils.getAddressDetails(await lucid.wallet.address())
+        .paymentCredential?.hash ?? "";
+
     // Temp hard coded values
     const apr = 10;
     const daysOfLoan = 10;
@@ -37,8 +42,8 @@ export default function Home() {
     const collateralPercentage = 150;
     const loanAmount = 100;
 
-    const submitLoanTransaction = await submitAssetLoanTransaction(
-      walletApi,
+    const submitLoanTx = await getOfferAssetLoanTx(
+      walletAddressHash,
       apr,
       daysOfLoan,
       loanAmount,
@@ -47,7 +52,13 @@ export default function Home() {
       collateralPercentage,
       interestAsset
     );
-    setTxId(submitLoanTransaction as string);
+
+    const tx = lucid.newTx();
+    const completedTx = await tx.compose(submitLoanTx).complete();
+    const signedTx = await completedTx.sign().complete();
+    const txId = await signedTx.submit();
+
+    setTxId(txId);
   };
 
   const LenderTabContent = ({
