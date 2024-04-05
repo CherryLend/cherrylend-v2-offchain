@@ -21,7 +21,7 @@ async function formatSubmitLoanDatum(
   collateralAsset: string,
   collateralPercentage: number,
   interestAsset: string,
-  walletAddress: string
+  walletAddressHash: string
 ) {
   const { Data, fromText } = await import("lucid-cardano");
 
@@ -36,7 +36,7 @@ async function formatSubmitLoanDatum(
     loan_asset: Data.Bytes(),
     loan_amount: Data.Integer(),
     loan_duration: Data.Integer(),
-    loan_owner_address: Data.Bytes(),
+    loan_owner_address_hash: Data.Bytes(),
   });
 
   type Datum = Data.Static<typeof DatumSchema>;
@@ -50,7 +50,7 @@ async function formatSubmitLoanDatum(
     loan_asset: fromText(loanAsset),
     loan_amount: BigInt(loanAmountInEachUTXO),
     loan_duration: BigInt(daysOfLoan),
-    loan_owner_address: fromText(walletAddress),
+    loan_owner_address_hash: fromText(walletAddressHash),
   };
 
   const formattedDatum = Data.to(datum, Datum);
@@ -78,7 +78,10 @@ export async function submitAssetLoanTransaction(
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
 
   lucid.selectWallet(api);
-  const walletAddress = await lucid.wallet.address();
+
+  const walletAddressHash =
+    lucid.utils.getAddressDetails(await lucid.wallet.address())
+      .paymentCredential?.hash ?? "";
 
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
@@ -90,7 +93,7 @@ export async function submitAssetLoanTransaction(
       collateralAsset,
       collateralPercentage,
       interestAsset,
-      walletAddress
+      walletAddressHash
     );
 
     tx.payToContract(
@@ -128,7 +131,10 @@ export async function submitADALoanTransaction(
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
 
   lucid.selectWallet(api);
-  const walletAddress = await lucid.wallet.address();
+
+  const walletAddressHash =
+    lucid.utils.getAddressDetails(await lucid.wallet.address())
+      .paymentCredential?.hash ?? "";
 
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
@@ -140,7 +146,7 @@ export async function submitADALoanTransaction(
       collateralAsset,
       collateralPercentage,
       interestAsset,
-      walletAddress
+      walletAddressHash
     );
 
     tx.payToContract(
