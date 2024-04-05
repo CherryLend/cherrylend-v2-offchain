@@ -1,4 +1,4 @@
-import { WalletApi, Lucid, SpendingValidator, Data } from "lucid-cardano";
+import { Lucid, SpendingValidator, Data } from "lucid-cardano";
 import { getLucid } from "./lucid";
 
 let lucid: Lucid;
@@ -58,8 +58,8 @@ async function formatSubmitLoanDatum(
   return formattedDatum;
 }
 
-export async function submitAssetLoanTransaction(
-  api: WalletApi,
+export async function getOfferAssetLoanTx(
+  walletAddressHash: string,
   apr: number,
   daysOfLoan: number,
   loanAmount: number,
@@ -76,12 +76,6 @@ export async function submitAssetLoanTransaction(
   }
 
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
-
-  lucid.selectWallet(api);
-
-  const walletAddressHash =
-    lucid.utils.getAddressDetails(await lucid.wallet.address())
-      .paymentCredential?.hash ?? "";
 
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
@@ -105,14 +99,11 @@ export async function submitAssetLoanTransaction(
     );
   }
 
-  const completedTx = await tx.complete();
-  const signedTx = await completedTx.sign().complete();
-  const txHash = await signedTx.submit();
-  return txHash;
+  return tx;
 }
 
-export async function submitADALoanTransaction(
-  api: WalletApi,
+export async function getOfferADALoanTx(
+  walletAddressHash: string,
   apr: number,
   daysOfLoan: number,
   loanAmount: number,
@@ -129,12 +120,6 @@ export async function submitADALoanTransaction(
   const loanAsset = "lovelace";
 
   const tempscriptAddress = lucid.utils.validatorToAddress(alwaysSucceedScript);
-
-  lucid.selectWallet(api);
-
-  const walletAddressHash =
-    lucid.utils.getAddressDetails(await lucid.wallet.address())
-      .paymentCredential?.hash ?? "";
 
   let tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
@@ -158,8 +143,5 @@ export async function submitADALoanTransaction(
     );
   }
 
-  const completedTx = await tx.complete();
-  const signedTx = await completedTx.sign().complete();
-  const txHash = await signedTx.submit();
-  return txHash;
+  return tx;
 }
