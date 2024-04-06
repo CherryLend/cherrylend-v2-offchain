@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "compile": "npx tsc"
   },
   "type": "module",
   "dependencies": {
@@ -12,6 +13,8 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "typescript": "^5.4.4",

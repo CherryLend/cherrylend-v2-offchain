@@ -29,7 +29,7 @@ export async function offerLoan(offerLoanConfig: OfferLoanConfig) {
 
   const tempscriptAddress = lucid.utils.validatorToAddress(validator);
 
-  let tx = lucid.newTx();
+  const tx = lucid.newTx();
   for (let i = 0; i < 10; i++) {
     const offerLoanDatum: OfferLoanDatum = {
       collateralAsset: fromText(offerLoanConfig.collateralAsset),

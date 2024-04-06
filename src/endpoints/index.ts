@@ -1,2 +1,2 @@
-export * from "./cancelLoan.js";
-export * from "./loanOffer.js";
+export * from "./cancelLoan";
+export * from "./loanOffer";
