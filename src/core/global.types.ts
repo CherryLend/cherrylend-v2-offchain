@@ -26,3 +26,9 @@ export type GetInterestConfig = {
   UTXOs: UTxO[];
   interestScript: CBORHex;
 };
+
+export type LiquidateCollateralConfig = {
+  walletAddressHash: string;
+  UTXOs: UTxO[];
+  collateralScript: CBORHex;
+};
