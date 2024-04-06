@@ -1,19 +1,20 @@
+import { Data, Constr, SpendingValidator } from "lucid-cardano";
+import { CancelLoanConfig } from "..";
 import { getLucid } from "@/core/utils";
-import { Data, Constr } from "lucid-cardano";
-import { loanScript } from "..";
 
-//
 export async function getCancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
   try {
     const lucid = await getLucid();
-    lucid.selectWallet(walletApi);
-    const scriptAddress = lucid.utils.validatorToAddress(loanScript);
-    const scriptUtxos = await lucid.utxosAt(scriptAddress);
+    const validator: SpendingValidator = {
+      type: "PlutusV2",
+      script: cancelLoanConfig.loanScript,
+    };
+
     const tx = lucid.newTx();
-    const burnRedeemer = Data.to(new Constr(1, []));
+    const cancelLoanRedeemer = Data.to(new Constr(1, []));
     const completedTx = await tx
-      .collectFrom([scriptUtxos[0]], burnRedeemer)
-      .attachSpendingValidator(loanScript)
+      .collectFrom(cancelLoanConfig.UTXOs, cancelLoanRedeemer)
+      .attachSpendingValidator(validator)
       .addSigner(await lucid.wallet.address())
       .complete();
 

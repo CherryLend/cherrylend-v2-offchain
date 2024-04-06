@@ -1,6 +1,6 @@
 import { Data } from "lucid-cardano";
 
-export const LoanOfferDatumSchema = Data.Object({
+export const OfferLoanDatumSchema = Data.Object({
   collateralAsset: Data.Bytes(),
   collateralAmount: Data.Integer(),
   interestAsset: Data.Bytes(),
@@ -11,5 +11,5 @@ export const LoanOfferDatumSchema = Data.Object({
   loanOwnerAddressHash: Data.Bytes(),
 });
 
-export type LoanOfferDatum = Data.Static<typeof LoanOfferDatumSchema>;
-export const LoanOfferDatum = LoanOfferDatumSchema as unknown as LoanOfferDatum;
+export type OfferLoanDatum = Data.Static<typeof OfferLoanDatumSchema>;
+export const OfferLoanDatum = OfferLoanDatumSchema as unknown as OfferLoanDatum;

@@ -1,4 +1,4 @@
-const { Lucid, Blockfrost } = await import("lucid-cardano");
+import { Lucid, Blockfrost } from "lucid-cardano";
 
 export async function getLucid() {
   const lucid = await Lucid.new(

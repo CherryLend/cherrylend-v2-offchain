@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest run"
   },
-  "module": "commonjs",
+  "type": "module",
   "dependencies": {
     "lucid-cardano": "^0.10.7",
     "ts-node": "^10.9.2"

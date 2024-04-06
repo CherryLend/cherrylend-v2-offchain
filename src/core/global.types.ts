@@ -3,7 +3,7 @@ import { UTxO } from "lucid-cardano";
 export type POSIXTime = number;
 export type CBORHex = string;
 
-export type LoanOfferConfig = {
+export type OfferLoanConfig = {
   walletAddressHash: string;
   apr: number;
   loanDuration: POSIXTime;
@@ -12,10 +12,17 @@ export type LoanOfferConfig = {
   collateralAsset: string;
   collateralPercentage: number;
   interestAsset: string;
+  loanScript: CBORHex;
 };
 
 export type CancelLoanConfig = {
   walletAddressHash: string;
   UTXOs: UTxO[];
   loanScript: CBORHex;
+};
+
+export type GetInterestConfig = {
+  walletAddressHash: string;
+  UTXOs: UTxO[];
+  interestScript: CBORHex;
 };
