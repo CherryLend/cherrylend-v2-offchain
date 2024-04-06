@@ -3,27 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "test": "vitest run",
+    "compile": "npx tsc"
   },
-  "module": "commonjs",
+  "type": "module",
   "dependencies": {
     "lucid-cardano": "^0.10.7",
-    "next": "14.1.4",
-    "react": "^18",
-    "react-dom": "^18"
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
-    "eslint-config-next": "14.1.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5.4.4",
+    "vitest": "^0.34.6"
   }
 }
