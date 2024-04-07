@@ -3,32 +3,37 @@ import { UTxO } from "lucid-cardano";
 export type POSIXTime = number;
 export type CBORHex = string;
 
+export type AssetClass = {
+  policyId: string;
+  tokenName: string;
+};
+
 export type OfferLoanConfig = {
-  walletAddressHash: string;
+  pubKeyHash: string;
   apr: number;
   loanDuration: POSIXTime;
   loanAmount: number;
-  loanAsset: string;
-  collateralAsset: string;
+  loanAsset: AssetClass;
+  collateralAsset: AssetClass;
   collateralPercentage: number;
-  interestAsset: string;
+  interestAsset: AssetClass;
   loanScript: CBORHex;
 };
 
 export type CancelLoanConfig = {
-  walletAddressHash: string;
+  pubKeyAddress: string;
   UTXOs: UTxO[];
   loanScript: CBORHex;
 };
 
 export type GetInterestConfig = {
-  walletAddressHash: string;
+  pubKeyAddress: string;
   UTXOs: UTxO[];
   interestScript: CBORHex;
 };
 
 export type LiquidateCollateralConfig = {
-  walletAddressHash: string;
+  pubKeyAddress: string;
   UTXOs: UTxO[];
   collateralScript: CBORHex;
 };

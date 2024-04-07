@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
-    "compile": "npx tsc"
+    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean"
   },
+  "module": "commonjs",
   "type": "module",
   "dependencies": {
     "lucid-cardano": "^0.10.7",

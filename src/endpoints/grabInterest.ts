@@ -15,11 +15,13 @@ export async function getInterest(getInterestConfig: GetInterestConfig) {
     const completedTx = await tx
       .collectFrom(getInterestConfig.UTXOs, getInterestRedeemer)
       .attachSpendingValidator(validator)
-      .addSigner(await lucid.wallet.address())
+      .addSigner(getInterestConfig.pubKeyAddress)
       .complete();
 
     return completedTx;
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    if (error instanceof Error) return { type: "error", error: error };
+
+    return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
   }
 }
