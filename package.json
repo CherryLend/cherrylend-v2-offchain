@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
-    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean"
+    "compile": "npx tsc"
   },
   "module": "commonjs",
   "type": "module",
