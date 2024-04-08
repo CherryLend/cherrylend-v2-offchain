@@ -1,4 +1,4 @@
-import { Lucid, Blockfrost } from "lucid-cardano";
+import { Lucid, Blockfrost, generateSeedPhrase, Assets } from "lucid-cardano";
 
 export async function getLucid() {
   const lucid = await Lucid.new(
@@ -10,3 +10,14 @@ export async function getLucid() {
   );
   return lucid;
 }
+
+export const generateAccountSeedPhrase = async (assets: Assets) => {
+  const seedPhrase = generateSeedPhrase();
+  return {
+    seedPhrase,
+    address: await (await Lucid.new(undefined, "Custom"))
+      .selectWalletFromSeed(seedPhrase)
+      .wallet.address(),
+    assets,
+  };
+};

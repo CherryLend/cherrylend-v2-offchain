@@ -17,11 +17,13 @@ export async function liquidateCollateral(
     const completedTx = await tx
       .collectFrom(liquidateCollateral.UTXOs, liquidateCollateraltRedeemer)
       .attachSpendingValidator(validator)
-      .addSigner(await lucid.wallet.address())
+      .addSigner(liquidateCollateral.pubKeyAddress)
       .complete();
 
     return completedTx;
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    if (error instanceof Error) return { type: "error", error: error };
+
+    return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
   }
 }

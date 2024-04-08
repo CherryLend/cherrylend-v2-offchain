@@ -6,6 +6,7 @@
     "test": "vitest run",
     "compile": "npx tsc"
   },
+  "module": "commonjs",
   "type": "module",
   "dependencies": {
     "lucid-cardano": "^0.10.7",
