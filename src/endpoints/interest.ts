@@ -1,8 +1,8 @@
 import { Data, Constr, SpendingValidator } from "lucid-cardano";
-import { GetInterestConfig } from "..";
-import { getLucid } from "@/core/utils";
+import { GetInterestConfig } from "../core/global.types.ts";
+import { getLucid } from "../core/utils/utils.ts";
 
-export async function getInterest(getInterestConfig: GetInterestConfig) {
+export async function interestTx(getInterestConfig: GetInterestConfig) {
   try {
     const lucid = await getLucid();
     const validator: SpendingValidator = {

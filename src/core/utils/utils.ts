@@ -1,4 +1,6 @@
 import { Lucid, Blockfrost, generateSeedPhrase, Assets } from "lucid-cardano";
+import { config } from "dotenv";
+config();
 
 export async function getLucid() {
   const lucid = await Lucid.new(

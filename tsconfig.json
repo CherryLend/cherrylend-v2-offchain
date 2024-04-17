@@ -5,7 +5,6 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
-    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -16,8 +15,9 @@
     "target": "ESNext",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "esModuleInterop": true
   },
-  "include": ["**/*.ts", "**/*.tsx", "src/test.js"],
+  "include": ["**/**/*.ts", "**/*.tsx", "src/test.js"],
   "exclude": ["node_modules"]
 }

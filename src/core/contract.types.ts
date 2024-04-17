@@ -8,14 +8,31 @@ export type AssetClassD = Data.Static<typeof AssetClassSchema>;
 export const AssetClassD = AssetClassSchema as unknown as AssetClassD;
 
 export const OfferLoanDatumSchema = Data.Object({
-  collateralAsset: AssetClassSchema,
-  collateralAmount: Data.Integer(),
-  interestAsset: AssetClassSchema,
-  interestAmount: Data.Integer(),
-  loanAsset: AssetClassSchema,
   loanAmount: Data.Integer(),
+  loanAsset: AssetClassSchema,
+  collateralAmount: Data.Integer(),
+  collateralAsset: AssetClassSchema,
+  interestAmount: Data.Integer(),
+  interestAsset: AssetClassSchema,
   loanDuration: Data.Integer(),
-  loanOwnerPubKeyHash: Data.Bytes(),
+  lenderPubKeyHash: Data.Bytes(),
 });
 export type OfferLoanDatum = Data.Static<typeof OfferLoanDatumSchema>;
 export const OfferLoanDatum = OfferLoanDatumSchema as unknown as OfferLoanDatum;
+
+export const CollateralDatumSchema = Data.Object({
+  loanAmount: Data.Integer(),
+  loanAsset: AssetClassSchema,
+  collateralAsset: AssetClassSchema,
+  interestAmount: Data.Integer(),
+  interestAsset: AssetClassSchema,
+  loanDuration: Data.Integer(),
+  lendTime: Data.Integer(),
+  lenderPubKeyHash: Data.Bytes(),
+  totalInterestAmount: Data.Integer(),
+  totalLoanAmount: Data.Integer(),
+  borrowerPubKeyHash: Data.Bytes(),
+});
+export type CollateralDatum = Data.Static<typeof CollateralDatumSchema>;
+export const CollateralDatum =
+  CollateralDatumSchema as unknown as CollateralDatum;
