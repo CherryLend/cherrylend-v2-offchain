@@ -9,21 +9,54 @@ export type AssetClass = {
 };
 
 export type OfferLoanConfig = {
-  pubKeyHash: string;
-  apr: number;
-  loanDuration: POSIXTime;
   loanAmount: number;
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
-  collateralPercentage: number;
+  collateralAmount: number;
   interestAsset: AssetClass;
-  loanScript: CBORHex;
+  interestAmount: number;
+  lenderPubKeyHash: string;
+  loanDuration: POSIXTime;
+};
+
+export type CollateralInfo = {
+  loanAmount: number;
+  collateralAmount: number;
+  interestAmount: number;
+  loanDuration: POSIXTime;
+  lenderPubKeyHash: string;
+};
+
+export type LoanConfig = {
+  borrowerPubKeyAddress: string;
+  loanUTxOs: UTxO[];
+  loanAsset: AssetClass;
+  collateralAsset: AssetClass;
+  interestAsset: AssetClass;
+  total_interest_amount: number;
+  total_loan_amount: number;
+  lendTime: POSIXTime;
+  borrowerPubKeyHash: string;
+  collateralInfo: [CollateralInfo];
+};
+
+export type InterestInfo = {
+  loanAmount: number;
+  loanAsset: AssetClass;
+  interestAmount: number;
+  interestAsset: AssetClass;
+  lenderPubKeyHash: string;
+};
+
+export type RepayLoanConfig = {
+  borrowerPubKeyAddress: string;
+  collateralUTxOs: UTxO[];
+  interestInfo: [InterestInfo];
 };
 
 export type CancelLoanConfig = {
   pubKeyAddress: string;
   UTXOs: UTxO[];
-  loanScript: CBORHex;
 };
 
 export type GetInterestConfig = {

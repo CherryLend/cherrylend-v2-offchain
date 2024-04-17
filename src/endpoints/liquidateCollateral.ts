@@ -1,16 +1,14 @@
-import { Data, Constr, SpendingValidator } from "lucid-cardano";
-import { LiquidateCollateralConfig } from "..";
-import { getLucid } from "@/core/utils";
+import { Data, Constr } from "lucid-cardano";
+import { LiquidateCollateralConfig } from "../core/global.types.ts";
+import { getLucid } from "../core/utils/utils.ts";
+import { getParamertizedCollateralValidator } from "../core/scripts.ts";
 
-export async function liquidateCollateral(
+export async function liquidateCollateralTx(
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
     const lucid = await getLucid();
-    const validator: SpendingValidator = {
-      type: "PlutusV2",
-      script: liquidateCollateral.collateralScript,
-    };
+    const validator = await getParamertizedCollateralValidator();
 
     const tx = lucid.newTx();
     const liquidateCollateraltRedeemer = Data.to(new Constr(1, []));

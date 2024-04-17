@@ -1,9 +1,10 @@
 import { getLucid } from "../core/utils/utils.ts";
 import { AssetClassD, OfferLoanDatum } from "../core/contract.types.ts";
-import { Data, SpendingValidator, toUnit } from "lucid-cardano";
+import { Data, toUnit } from "lucid-cardano";
 import { OfferLoanConfig } from "../core/global.types.ts";
+import { getParamertizedLoanValidator } from "../core/scripts.ts";
 
-export async function offerLoan(offerLoanConfig: OfferLoanConfig) {
+export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
   try {
     const loanUnit = offerLoanConfig.loanAsset.policyId
       ? toUnit(
@@ -11,28 +12,14 @@ export async function offerLoan(offerLoanConfig: OfferLoanConfig) {
           offerLoanConfig.loanAsset.tokenName
         )
       : "lovelace";
-
+    // TODO: Add Params for loan amount in each UTXO
     const loanAmountInEachUTXO = offerLoanConfig.loanAmount / 10;
-    // Min Token Amount needs to be higher than 10 or else it will fail
-    // because collateral amount will not be a whole number
-    if (loanUnit === "lovelace" && loanAmountInEachUTXO < 1000000) {
-      throw new Error("Amount too low");
-    } else if (loanAmountInEachUTXO < 10) {
-      throw new Error("Amount too low");
-    }
 
-    const validator: SpendingValidator = {
-      type: "PlutusV2",
-      script: offerLoanConfig.loanScript,
-    };
-
-    const collateralAmount =
-      (loanAmountInEachUTXO * offerLoanConfig.collateralPercentage) / 100;
-    const interestAmount = loanAmountInEachUTXO * offerLoanConfig.apr;
+    const validator = await getParamertizedLoanValidator();
 
     const lucid = await getLucid();
 
-    const tempscriptAddress = lucid.utils.validatorToAddress(validator);
+    const loanScriptAddress = lucid.utils.validatorToAddress(validator);
 
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
@@ -53,20 +40,20 @@ export async function offerLoan(offerLoanConfig: OfferLoanConfig) {
     for (let i = 0; i < 10; i++) {
       const offerLoanDatum: OfferLoanDatum = {
         collateralAsset: collateralAsset,
-        collateralAmount: BigInt(collateralAmount),
+        collateralAmount: BigInt(offerLoanConfig.collateralAmount),
         interestAsset: interestAsset,
-        interestAmount: BigInt(interestAmount),
+        interestAmount: BigInt(offerLoanConfig.interestAmount),
         loanAsset: loanAsset,
         loanAmount: BigInt(loanAmountInEachUTXO),
         loanDuration: BigInt(offerLoanConfig.loanDuration),
-        loanOwnerPubKeyHash: offerLoanConfig.pubKeyHash,
+        lenderPubKeyHash: offerLoanConfig.lenderPubKeyHash,
       };
 
       tx.payToContract(
-        tempscriptAddress,
+        loanScriptAddress,
         { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
         {
-          lovelace: BigInt(loanAmountInEachUTXO),
+          [loanUnit]: BigInt(loanAmountInEachUTXO),
         }
       );
     }
