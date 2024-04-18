@@ -1,18 +1,18 @@
 import { Data, Constr } from "lucid-cardano";
 import { CancelLoanConfig } from "../core/global.types.ts";
 import { getLucid } from "../core/utils/utils.ts";
-import { getParamertizedLoanValidator } from "../core/scripts.ts";
+import { getValidators } from "../core/scripts.ts";
 
 export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
   try {
     const lucid = await getLucid();
-    const paramertizedLoanScript = await getParamertizedLoanValidator();
+    const { loanValidator } = await getValidators();
 
     const tx = lucid.newTx();
     const cancelLoanRedeemer = Data.to(new Constr(1, []));
     const completedTx = tx
       .collectFrom(cancelLoanConfig.UTXOs, cancelLoanRedeemer)
-      .attachSpendingValidator(paramertizedLoanScript)
+      .attachSpendingValidator(loanValidator)
       .addSigner(cancelLoanConfig.pubKeyAddress);
 
     return completedTx;

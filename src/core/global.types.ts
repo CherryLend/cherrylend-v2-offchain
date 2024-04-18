@@ -62,11 +62,9 @@ export type CancelLoanConfig = {
 export type GetInterestConfig = {
   pubKeyAddress: string;
   UTXOs: UTxO[];
-  interestScript: CBORHex;
 };
 
 export type LiquidateCollateralConfig = {
   pubKeyAddress: string;
   UTXOs: UTxO[];
-  collateralScript: CBORHex;
 };

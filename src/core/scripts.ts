@@ -1,4 +1,9 @@
-import { applyParamsToScript, SpendingValidator, Lucid } from "lucid-cardano";
+import {
+  applyParamsToScript,
+  SpendingValidator,
+  Lucid,
+  WithdrawalValidator,
+} from "lucid-cardano";
 import { getLucid } from "./utils/utils.ts";
 
 function bytesToValidator(bytes: string) {
@@ -10,18 +15,21 @@ function bytesToValidator(bytes: string) {
 }
 
 export async function deployCollateralStakingValidator(lucid: Lucid) {
-  const { collateralValidator } = await getValidators();
+  const { collateralStakingValidator } = await getValidators();
   const tx = await lucid
     .newTx()
-    .registerStake(collateralValidator.script)
+    .registerStake(collateralStakingValidator.script)
     .complete();
   const signedTx = await tx.sign().complete();
   await signedTx.submit();
 }
 
 export async function deployLoanStakingValidator(lucid: Lucid) {
-  const { loanValidator } = await getValidators();
-  const tx = await lucid.newTx().registerStake(loanValidator.script).complete();
+  const { loanStakingValidator } = await getValidators();
+  const tx = await lucid
+    .newTx()
+    .registerStake(loanStakingValidator.script)
+    .complete();
   const signedTx = await tx.sign().complete();
   await signedTx.submit();
 }
@@ -48,6 +56,11 @@ export async function getValidators() {
     ]),
   };
 
+  const collateralStakingValidator: WithdrawalValidator = {
+    type: "PlutusV2",
+    script: collateralValidator.script,
+  };
+
   const loanValidator: SpendingValidator = {
     type: "PlutusV2",
     script: applyParamsToScript(loanValidatorCBOR, [
@@ -55,5 +68,16 @@ export async function getValidators() {
     ]),
   };
 
-  return { interestValidator, collateralValidator, loanValidator };
+  const loanStakingValidator: WithdrawalValidator = {
+    type: "PlutusV2",
+    script: loanValidator.script,
+  };
+
+  return {
+    interestValidator,
+    collateralValidator,
+    loanValidator,
+    collateralStakingValidator,
+    loanStakingValidator,
+  };
 }

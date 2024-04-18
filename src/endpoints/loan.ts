@@ -1,20 +1,15 @@
 import { Data, Constr, toUnit } from "lucid-cardano";
 import { LoanConfig } from "../core/global.types.ts";
 import { getLucid } from "../core/utils/utils.ts";
-import {
-  getParamertizedLoanValidator,
-  getLoanStakingValidator,
-  getParamertizedCollateralValidator,
-} from "../core/scripts.ts";
 import { AssetClassD, CollateralDatum } from "../core/contract.types.ts";
+import { getValidators } from "@/core/scripts.ts";
 
 export async function loanTx(loanConfig: LoanConfig) {
   try {
     const lucid = await getLucid();
-    const loanValidator = await getParamertizedLoanValidator();
-    const loanStakingValidator = await getLoanStakingValidator();
+    const { loanValidator, collateralValidator, loanStakingValidator } =
+      await getValidators();
 
-    const collateralValidator = await getParamertizedCollateralValidator();
     const collateralValidatorAddress =
       lucid.utils.validatorToAddress(collateralValidator);
 
