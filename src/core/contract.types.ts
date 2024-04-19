@@ -36,3 +36,13 @@ export const CollateralDatumSchema = Data.Object({
 export type CollateralDatum = Data.Static<typeof CollateralDatumSchema>;
 export const CollateralDatum =
   CollateralDatumSchema as unknown as CollateralDatum;
+
+export const InterestDatumSchema = Data.Object({
+  repayLoanAmount: Data.Integer(),
+  repayLoanAsset: AssetClassSchema,
+  repayInterestAmount: Data.Integer(),
+  repayInterestAsset: AssetClassSchema,
+  lenderPubKeyHash: Data.Bytes(),
+});
+export type InterestDatum = Data.Static<typeof InterestDatumSchema>;
+export const InterestDatum = InterestDatumSchema as unknown as InterestDatum;

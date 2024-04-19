@@ -17,9 +17,10 @@ export type OfferLoanConfig = {
   interestAmount: number;
   lenderPubKeyHash: string;
   loanDuration: POSIXTime;
+  loanUTXoSAmount: [number];
 };
 
-export type CollateralInfo = {
+type CollateralUTxOsInfo = {
   loanAmount: number;
   collateralAmount: number;
   interestAmount: number;
@@ -28,7 +29,6 @@ export type CollateralInfo = {
 };
 
 export type LoanConfig = {
-  borrowerPubKeyAddress: string;
   loanUTxOs: UTxO[];
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
@@ -37,34 +37,34 @@ export type LoanConfig = {
   total_loan_amount: number;
   lendTime: POSIXTime;
   borrowerPubKeyHash: string;
-  collateralInfo: [CollateralInfo];
+  collateralUTxOsInfo: [CollateralUTxOsInfo];
 };
 
-export type InterestInfo = {
-  loanAmount: number;
-  loanAsset: AssetClass;
-  interestAmount: number;
-  interestAsset: AssetClass;
+type InterestUTxOsInfo = {
+  repayLoanAmount: number;
+  repayInterestAmount: number;
   lenderPubKeyHash: string;
 };
 
 export type RepayLoanConfig = {
+  loanAsset: AssetClass;
+  interestAsset: AssetClass;
   borrowerPubKeyAddress: string;
   collateralUTxOs: UTxO[];
-  interestInfo: [InterestInfo];
+  interestUTxOsInfo: [InterestUTxOsInfo];
 };
 
 export type CancelLoanConfig = {
-  pubKeyAddress: string;
-  UTXOs: UTxO[];
+  lenderPubKeyHash: string;
+  loanUTxOs: UTxO[];
 };
 
-export type GetInterestConfig = {
-  pubKeyAddress: string;
-  UTXOs: UTxO[];
+export type InterestConfig = {
+  lenderPubKeyHash: string;
+  interestUTxOs: UTxO[];
 };
 
 export type LiquidateCollateralConfig = {
-  pubKeyAddress: string;
-  UTXOs: UTxO[];
+  lenderPubKeyHash: string;
+  collateralUTxOs: UTxO[];
 };
