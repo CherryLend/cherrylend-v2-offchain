@@ -2,24 +2,14 @@ import { getLucid } from "../core/utils/utils.ts";
 import { AssetClassD, OfferLoanDatum } from "../core/contract.types.ts";
 import { Data, toUnit } from "lucid-cardano";
 import { OfferLoanConfig } from "../core/global.types.ts";
-import { getParamertizedLoanValidator } from "../core/scripts.ts";
+import { getValidators } from "../core/scripts.ts";
 
 export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
   try {
-    const loanUnit = offerLoanConfig.loanAsset.policyId
-      ? toUnit(
-          offerLoanConfig.loanAsset.policyId,
-          offerLoanConfig.loanAsset.tokenName
-        )
-      : "lovelace";
-    // TODO: Add Params for loan amount in each UTXO
-    const loanAmountInEachUTXO = offerLoanConfig.loanAmount / 10;
-
-    const validator = await getParamertizedLoanValidator();
-
     const lucid = await getLucid();
 
-    const loanScriptAddress = lucid.utils.validatorToAddress(validator);
+    const { loanValidator } = await getValidators();
+    const loanScriptAddress = lucid.utils.validatorToAddress(loanValidator);
 
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
@@ -36,15 +26,22 @@ export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
       tokenName: offerLoanConfig.loanAsset.tokenName,
     };
 
+    const loanUnit = offerLoanConfig.loanAsset.policyId
+      ? toUnit(
+          offerLoanConfig.loanAsset.policyId,
+          offerLoanConfig.loanAsset.tokenName
+        )
+      : "lovelace";
+
     const tx = lucid.newTx();
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < offerLoanConfig.loanUTXoSAmount.length; i++) {
       const offerLoanDatum: OfferLoanDatum = {
         collateralAsset: collateralAsset,
         collateralAmount: BigInt(offerLoanConfig.collateralAmount),
         interestAsset: interestAsset,
         interestAmount: BigInt(offerLoanConfig.interestAmount),
         loanAsset: loanAsset,
-        loanAmount: BigInt(loanAmountInEachUTXO),
+        loanAmount: BigInt(offerLoanConfig.loanUTXoSAmount[i]),
         loanDuration: BigInt(offerLoanConfig.loanDuration),
         lenderPubKeyHash: offerLoanConfig.lenderPubKeyHash,
       };
@@ -53,7 +50,7 @@ export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
         loanScriptAddress,
         { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
         {
-          [loanUnit]: BigInt(loanAmountInEachUTXO),
+          [loanUnit]: BigInt(offerLoanConfig.loanUTXoSAmount[i]),
         }
       );
     }

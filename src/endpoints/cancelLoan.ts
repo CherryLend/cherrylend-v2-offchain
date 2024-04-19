@@ -6,16 +6,17 @@ import { getValidators } from "../core/scripts.ts";
 export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
   try {
     const lucid = await getLucid();
+
     const { loanValidator } = await getValidators();
 
-    const tx = lucid.newTx();
     const cancelLoanRedeemer = Data.to(new Constr(1, []));
-    const completedTx = tx
-      .collectFrom(cancelLoanConfig.UTXOs, cancelLoanRedeemer)
-      .attachSpendingValidator(loanValidator)
-      .addSigner(cancelLoanConfig.pubKeyAddress);
 
-    return completedTx;
+    const tx = lucid.newTx();
+    tx.collectFrom(cancelLoanConfig.loanUTxOs, cancelLoanRedeemer)
+      .attachSpendingValidator(loanValidator)
+      .addSigner(cancelLoanConfig.lenderPubKeyHash);
+
+    return tx;
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

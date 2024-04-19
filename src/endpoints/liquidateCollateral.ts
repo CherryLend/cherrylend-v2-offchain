@@ -8,17 +8,20 @@ export async function liquidateCollateralTx(
 ) {
   try {
     const lucid = await getLucid();
+
     const { collateralValidator } = await getValidators();
 
-    const tx = lucid.newTx();
     const liquidateCollateraltRedeemer = Data.to(new Constr(1, []));
-    const completedTx = await tx
-      .collectFrom(liquidateCollateral.UTXOs, liquidateCollateraltRedeemer)
-      .attachSpendingValidator(collateralValidator)
-      .addSigner(liquidateCollateral.pubKeyAddress)
-      .complete();
 
-    return completedTx;
+    const tx = lucid.newTx();
+    tx.collectFrom(
+      liquidateCollateral.collateralUTxOs,
+      liquidateCollateraltRedeemer
+    )
+      .attachSpendingValidator(collateralValidator)
+      .addSigner(liquidateCollateral.lenderPubKeyHash);
+
+    return tx;
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 
