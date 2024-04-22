@@ -9,7 +9,6 @@ export type AssetClass = {
 };
 
 export type OfferLoanConfig = {
-  loanAmount: number;
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
   collateralAmount: number;
@@ -67,4 +66,12 @@ export type InterestConfig = {
 export type LiquidateCollateralConfig = {
   lenderPubKeyHash: string;
   collateralUTxOs: UTxO[];
+};
+
+export type SelectLoanConfig = {
+  utxos: UTxO[];
+  loanAmount: number;
+  loanAsset: AssetClass;
+  collateralAsset: AssetClass;
+  apr: number;
 };
