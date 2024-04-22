@@ -1,5 +1,9 @@
 import { Data, UTxO } from "lucid-cardano";
-import { OfferLoanDatum } from "./contract.types.ts";
+import {
+  CollateralDatum,
+  InterestDatum,
+  OfferLoanDatum,
+} from "./contract.types.ts";
 import { SelectLoanConfig } from "./global.types.ts";
 
 function weightedShuffle(items: UTxO[], weights: number[]) {
@@ -44,20 +48,25 @@ function weightedShuffle(items: UTxO[], weights: number[]) {
 export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   // Get all offers that match the loan amount, loan asset, collateral asset, and APR
   const availableOffers = selectLoanConfig.utxos.filter((utxo) => {
-    const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
-    const interestAmount = (parseInt(datum.loanAmount.toString()) * apr) / 100;
-    if (
-      datum.loanAsset === selectLoanConfig.loanAsset &&
-      datum.collateralAsset === selectLoanConfig.collateralAsset &&
-      datum.interestAmount === BigInt(interestAmount) &&
-      datum.interestAsset === selectLoanConfig.loanAsset
-    ) {
-      return true;
+    try {
+      const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
+      const interestAmount =
+        (parseInt(datum.loanAmount.toString()) * selectLoanConfig.apr) / 100;
+      if (
+        datum.loanAsset === selectLoanConfig.loanAsset &&
+        datum.collateralAsset === selectLoanConfig.collateralAsset &&
+        datum.interestAmount === BigInt(interestAmount) &&
+        datum.interestAsset === selectLoanConfig.loanAsset
+      ) {
+        return true;
+      }
+    } catch (error) {
+      return false;
     }
   });
 
-  // UTxOs are ordered based on time submitted, eariliest loan offers have the highest
-  // changed of being selected
+  // Using a decay factor so as the index increases, the weight of the UTxO decreases exponentially.
+  // But the weight won't have as much of a spread as we go towards the end of the array
   const decayFactor = 0.5;
   const weights = availableOffers.map((element, index) =>
     Math.exp(-index / decayFactor)
@@ -70,7 +79,9 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   // Fill the loan
   for (let i = 0; i < orderedShuffle.length; i++) {
     const offer = orderedShuffle[i];
+
     const datum = Data.castFrom(offer.datum as string, OfferLoanDatum);
+
     const loanAmount = parseInt(datum.loanAmount.toString());
     if (totalLoanAmount - loanAmount >= 0) {
       loanUTxOs.push(offer);
@@ -81,10 +92,66 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   return loanUTxOs;
 }
 
-export function getBorrowersCollateral(utxos: UTxO[]) {}
+export function getAllBorrowersCollateral(
+  utxos: UTxO[],
+  borrowerPubKeyHash: string
+) {
+  return utxos.filter((utxo) => {
+    try {
+      const datum = Data.castFrom(utxo.datum as string, CollateralDatum);
+      return datum.borrowerPubKeyHash === borrowerPubKeyHash;
+    } catch (error) {
+      return false;
+    }
+  });
+}
 
-export function getLendersLoanOffers(utxos: UTxO[]) {}
+export function getAllLendersLoanOffers(
+  utxos: UTxO[],
+  lenderPubKeyHash: string
+) {
+  return utxos.filter((utxo) => {
+    try {
+      const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
+      return datum.lenderPubKeyHash === lenderPubKeyHash;
+    } catch (error) {
+      return false;
+    }
+  });
+}
 
-export function getLendersInterestPayment(utxos: UTxO[]) {}
+export function getAllLendersInterestPayment(
+  utxos: UTxO[],
+  lenderPubKeyHash: string
+) {
+  return utxos.filter((utxo) => {
+    try {
+      const datum = Data.castFrom(utxo.datum as string, InterestDatum);
+      return datum.lenderPubKeyHash === lenderPubKeyHash;
+    } catch (error) {
+      return false;
+    }
+  });
+}
 
-export function getLendersLiquidateCollateral(utxos: UTxO[]) {}
+export function getAllLendersLiquidateCollateral(
+  utxos: UTxO[],
+  lenderPubKeyHash: string
+) {
+  return utxos.filter((utxo) => {
+    try {
+      const datum = Data.castFrom(utxo.datum as string, CollateralDatum);
+      const currentPosixTime = Math.floor(Date.now() / 1000);
+      const lendTime = parseInt(datum.lendTime.toString());
+      const loanDuration = parseInt(datum.loanDuration.toString());
+
+      // Check if the loan has expired and the lender can liquidate the collateral
+      return (
+        datum.lenderPubKeyHash === lenderPubKeyHash &&
+        currentPosixTime > lendTime + loanDuration
+      );
+    } catch (error) {
+      return false;
+    }
+  });
+}

@@ -14,7 +14,7 @@ export async function interestTx(getInterestConfig: InterestConfig) {
     const tx = lucid.newTx();
     tx.collectFrom(getInterestConfig.interestUTxOs, getInterestRedeemer)
       .attachSpendingValidator(interestValidator)
-      .addSigner(getInterestConfig.lenderPubKeyHash)
+      .addSignerKey(getInterestConfig.lenderPubKeyHash)
       .complete();
 
     return tx;

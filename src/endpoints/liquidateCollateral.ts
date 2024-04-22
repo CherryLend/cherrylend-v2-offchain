@@ -19,7 +19,7 @@ export async function liquidateCollateralTx(
       liquidateCollateraltRedeemer
     )
       .attachSpendingValidator(collateralValidator)
-      .addSigner(liquidateCollateral.lenderPubKeyHash);
+      .addSignerKey(liquidateCollateral.lenderPubKeyHash);
 
     return tx;
   } catch (error) {

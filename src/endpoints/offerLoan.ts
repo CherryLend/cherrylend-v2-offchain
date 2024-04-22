@@ -4,7 +4,7 @@ import { Data, toUnit } from "lucid-cardano";
 import { OfferLoanConfig } from "../core/global.types.ts";
 import { getValidators } from "../core/scripts.ts";
 
-export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
+export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
   try {
     const lucid = await getLucid();
 
@@ -36,12 +36,12 @@ export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
     const tx = lucid.newTx();
     for (let i = 0; i < offerLoanConfig.loanUTXoSAmount.length; i++) {
       const offerLoanDatum: OfferLoanDatum = {
-        collateralAsset: collateralAsset,
-        collateralAmount: BigInt(offerLoanConfig.collateralAmount),
-        interestAsset: interestAsset,
-        interestAmount: BigInt(offerLoanConfig.interestAmount),
-        loanAsset: loanAsset,
         loanAmount: BigInt(offerLoanConfig.loanUTXoSAmount[i]),
+        loanAsset: loanAsset,
+        collateralAmount: BigInt(offerLoanConfig.collateralAmount),
+        collateralAsset: collateralAsset,
+        interestAmount: BigInt(offerLoanConfig.interestAmount),
+        interestAsset: interestAsset,
         loanDuration: BigInt(offerLoanConfig.loanDuration),
         lenderPubKeyHash: offerLoanConfig.lenderPubKeyHash,
       };
