@@ -2,19 +2,14 @@ import { Data, Constr, toUnit } from "lucid-cardano";
 import { RepayLoanConfig } from "../core/global.types.ts";
 import { getLucid } from "../core/utils/utils.ts";
 import { AssetClassD, InterestDatum } from "../core/contract.types.ts";
-import { getValidators } from "../core/scripts.ts";
 
 export async function repayLoanTx(interestConfig: RepayLoanConfig) {
   try {
     const lucid = await getLucid();
 
-    const {
-      collateralValidator,
-      collateralStakingValidator,
-      interestValidator,
-    } = await getValidators();
-    const interestValidatorAddress =
-      lucid.utils.validatorToAddress(interestValidator);
+    const interestValidatorAddress = lucid.utils.validatorToAddress(
+      interestConfig.interestValidator
+    );
 
     const loanUnit = interestConfig.loanAsset.policyId
       ? toUnit(
@@ -44,8 +39,8 @@ export async function repayLoanTx(interestConfig: RepayLoanConfig) {
 
     const tx = lucid.newTx();
     tx.collectFrom(interestConfig.collateralUTxOs, redeemer)
-      .attachSpendingValidator(collateralValidator)
-      .attachWithdrawalValidator(collateralStakingValidator);
+      .attachSpendingValidator(interestConfig.collateralValidator)
+      .attachWithdrawalValidator(interestConfig.collateralStakingValidator);
 
     for (let i = 0; i < interestConfig.interestUTxOsInfo.length; i++) {
       const interestDatum: InterestDatum = {

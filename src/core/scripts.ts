@@ -17,9 +17,12 @@ function bytesToValidator(bytes: string) {
 
 export async function deployCollateralStakingValidator(lucid: Lucid) {
   const { collateralStakingValidator } = await getValidators();
+  const collateralStakingAddress = lucid.utils.validatorToRewardAddress(
+    collateralStakingValidator
+  );
   const tx = await lucid
     .newTx()
-    .registerStake(collateralStakingValidator.script)
+    .registerStake(collateralStakingAddress)
     .complete();
   const signedTx = await tx.sign().complete();
   await signedTx.submit();
@@ -27,10 +30,9 @@ export async function deployCollateralStakingValidator(lucid: Lucid) {
 
 export async function deployLoanStakingValidator(lucid: Lucid) {
   const { loanStakingValidator } = await getValidators();
-  const tx = await lucid
-    .newTx()
-    .registerStake(loanStakingValidator.script)
-    .complete();
+  const loanStakingAddress =
+    lucid.utils.validatorToRewardAddress(loanStakingValidator);
+  const tx = await lucid.newTx().registerStake(loanStakingAddress).complete();
   const signedTx = await tx.sign().complete();
   await signedTx.submit();
 }

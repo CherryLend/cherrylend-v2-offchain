@@ -1,17 +1,15 @@
-import { Data, Constr, toUnit } from "lucid-cardano";
+import { Data, toUnit } from "lucid-cardano";
 import { LoanConfig } from "../core/global.types.ts";
 import { getLucid } from "../core/utils/utils.ts";
 import { AssetClassD, CollateralDatum } from "../core/contract.types.ts";
-import { getValidators } from "../core/scripts.ts";
 
 export async function loanTx(loanConfig: LoanConfig) {
   try {
     const lucid = await getLucid();
 
-    const { loanValidator, collateralValidator, loanStakingValidator } =
-      await getValidators();
-    const collateralValidatorAddress =
-      lucid.utils.validatorToAddress(collateralValidator);
+    const collateralValidatorAddress = lucid.utils.validatorToAddress(
+      loanConfig.collateralValidator
+    );
 
     const loanUnit = loanConfig.loanAsset.policyId
       ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.tokenName)
@@ -32,12 +30,17 @@ export async function loanTx(loanConfig: LoanConfig) {
       tokenName: loanConfig.loanAsset.tokenName,
     };
 
-    const loanRedeemer = Data.to(new Constr(0, []));
+    const loanRedeemer = Data.to(1n);
+
+    const lowerBound = loanConfig.lendTime - 120000;
+    const upperBound = loanConfig.lendTime + 120000;
 
     const tx = lucid.newTx();
     tx.collectFrom(loanConfig.loanUTxOs, loanRedeemer)
-      .attachSpendingValidator(loanValidator)
-      .attachWithdrawalValidator(loanStakingValidator);
+      .attachSpendingValidator(loanConfig.loanValidator)
+      .attachWithdrawalValidator(loanConfig.loanStakingValidator)
+      .validFrom(lowerBound)
+      .validTo(upperBound);
 
     for (let i = 0; i < loanConfig.collateralUTxOsInfo.length; i++) {
       const collateralDatum: CollateralDatum = {

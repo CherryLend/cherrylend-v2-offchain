@@ -2,14 +2,14 @@ import { getLucid } from "../core/utils/utils.ts";
 import { AssetClassD, OfferLoanDatum } from "../core/contract.types.ts";
 import { Data, toUnit } from "lucid-cardano";
 import { OfferLoanConfig } from "../core/global.types.ts";
-import { getValidators } from "../core/scripts.ts";
 
 export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
   try {
     const lucid = await getLucid();
 
-    const { loanValidator } = await getValidators();
-    const loanScriptAddress = lucid.utils.validatorToAddress(loanValidator);
+    const loanScriptAddress = lucid.utils.validatorToAddress(
+      offerLoanConfig.loanValidator
+    );
 
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
