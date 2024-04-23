@@ -8,7 +8,7 @@ export async function liquidateCollateralTx(
   try {
     const lucid = await getLucid();
 
-    const liquidateCollateraltRedeemer = Data.to(new Constr(1, []));
+    const liquidateCollateraltRedeemer = Data.to(new Constr(1, [1n]));
 
     const tx = lucid.newTx();
     tx.collectFrom(
