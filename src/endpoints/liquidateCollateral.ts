@@ -1,15 +1,12 @@
 import { Data, Constr } from "lucid-cardano";
 import { LiquidateCollateralConfig } from "../core/global.types.ts";
 import { getLucid } from "../core/utils/utils.ts";
-import { getValidators } from "../core/scripts.ts";
 
 export async function liquidateCollateralTx(
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
     const lucid = await getLucid();
-
-    const { collateralValidator } = await getValidators();
 
     const liquidateCollateraltRedeemer = Data.to(new Constr(1, []));
 
@@ -18,7 +15,7 @@ export async function liquidateCollateralTx(
       liquidateCollateral.collateralUTxOs,
       liquidateCollateraltRedeemer
     )
-      .attachSpendingValidator(collateralValidator)
+      .attachSpendingValidator(liquidateCollateral.collateralValidator)
       .addSignerKey(liquidateCollateral.lenderPubKeyHash);
 
     return tx;
