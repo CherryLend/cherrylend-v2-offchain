@@ -7,10 +7,6 @@ export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
   try {
     const lucid = await getLucid();
 
-    const loanScriptAddress = lucid.utils.validatorToAddress(
-      offerLoanConfig.loanValidator
-    );
-
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
       tokenName: offerLoanConfig.collateralAsset.tokenName,
@@ -47,7 +43,7 @@ export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
       };
 
       tx.payToContract(
-        loanScriptAddress,
+        offerLoanConfig.loanScriptAddress,
         { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
         {
           [loanUnit]: BigInt(offerLoanConfig.loanUTXoSAmount[i]),

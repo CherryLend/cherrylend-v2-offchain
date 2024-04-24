@@ -7,10 +7,6 @@ export async function repayLoanTx(interestConfig: RepayLoanConfig) {
   try {
     const lucid = await getLucid();
 
-    const interestValidatorAddress = lucid.utils.validatorToAddress(
-      interestConfig.interestValidator
-    );
-
     const loanUnit = interestConfig.loanAsset.policyId
       ? toUnit(
           interestConfig.loanAsset.policyId,
@@ -56,7 +52,7 @@ export async function repayLoanTx(interestConfig: RepayLoanConfig) {
       };
 
       tx.payToContract(
-        interestValidatorAddress,
+        interestConfig.interestScriptAddress,
         { inline: Data.to(interestDatum, InterestDatum) },
         {
           [loanUnit]: BigInt(
