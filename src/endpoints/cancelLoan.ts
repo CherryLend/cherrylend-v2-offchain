@@ -10,9 +10,13 @@ export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
     const tx = lucid.newTx();
     tx.collectFrom(cancelLoanConfig.loanUTxOs, newCancelRedeemer)
       .attachSpendingValidator(cancelLoanConfig.loanValidator)
-      .addSignerKey(cancelLoanConfig.lenderPubKeyHash);
+      .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
+      .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

@@ -5,7 +5,7 @@ import {
   WithdrawalValidator,
   applyDoubleCborEncoding,
 } from "lucid-cardano";
-import { getLucid } from "./utils/utils.ts";
+import { getLucid } from "./utils/utils.js";
 
 function bytesToValidator(bytes: string) {
   const script: SpendingValidator = {

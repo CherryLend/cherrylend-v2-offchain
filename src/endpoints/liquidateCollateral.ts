@@ -16,9 +16,13 @@ export async function liquidateCollateralTx(
       liquidateCollateraltRedeemer
     )
       .attachSpendingValidator(liquidateCollateral.collateralValidator)
-      .addSignerKey(liquidateCollateral.lenderPubKeyHash);
+      .addSignerKey(liquidateCollateral.lenderPubKeyHash)
+      .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

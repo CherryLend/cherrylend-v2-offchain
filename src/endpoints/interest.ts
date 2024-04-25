@@ -14,7 +14,10 @@ export async function interestTx(getInterestConfig: InterestConfig) {
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
       .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

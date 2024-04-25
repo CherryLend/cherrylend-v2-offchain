@@ -66,7 +66,12 @@ export async function loanTx(loanConfig: LoanConfig) {
       );
     }
 
-    return tx;
+    tx.complete();
+
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

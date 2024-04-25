@@ -3,7 +3,7 @@ import { AssetClassD, OfferLoanDatum } from "../core/contract.types.js";
 import { OfferLoanConfig } from "../core/global.types.js";
 import { Data, toUnit } from "lucid-cardano";
 
-export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
+export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
   try {
     const lucid = await getLucid();
 
@@ -22,12 +22,13 @@ export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
       tokenName: offerLoanConfig.loanAsset.tokenName,
     };
 
-    const loanUnit = offerLoanConfig.loanAsset.policyId
-      ? toUnit(
-          offerLoanConfig.loanAsset.policyId,
-          offerLoanConfig.loanAsset.tokenName
-        )
-      : "lovelace";
+    const loanUnit =
+      offerLoanConfig.loanAsset.policyId.length > 0
+        ? toUnit(
+            offerLoanConfig.loanAsset.policyId,
+            offerLoanConfig.loanAsset.tokenName
+          )
+        : "lovelace";
 
     const tx = lucid.newTx();
     for (let i = 0; i < offerLoanConfig.loanUTXoSAmount.length; i++) {
@@ -51,7 +52,11 @@ export async function loanOfferTx(offerLoanConfig: OfferLoanConfig) {
       );
     }
 
-    return tx;
+    tx.complete();
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 
