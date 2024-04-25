@@ -4,7 +4,6 @@ import {
   Lucid,
   WithdrawalValidator,
   applyDoubleCborEncoding,
-  stakeCredentialOf,
 } from "lucid-cardano";
 import { getLucid } from "./utils/utils.ts";
 
