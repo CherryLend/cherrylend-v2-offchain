@@ -1,6 +1,6 @@
 import { Data, Constr } from "lucid-cardano";
-import { InterestConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
+import { InterestConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
 
 export async function interestTx(getInterestConfig: InterestConfig) {
   try {
@@ -14,7 +14,10 @@ export async function interestTx(getInterestConfig: InterestConfig) {
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
       .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

@@ -1,6 +1,6 @@
 import { Data, Constr } from "lucid-cardano";
-import { CancelLoanConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
+import { CancelLoanConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
 
 export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
   try {
@@ -10,9 +10,13 @@ export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
     const tx = lucid.newTx();
     tx.collectFrom(cancelLoanConfig.loanUTxOs, newCancelRedeemer)
       .attachSpendingValidator(cancelLoanConfig.loanValidator)
-      .addSignerKey(cancelLoanConfig.lenderPubKeyHash);
+      .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
+      .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

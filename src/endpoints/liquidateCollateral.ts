@@ -1,6 +1,6 @@
 import { Data, Constr } from "lucid-cardano";
-import { LiquidateCollateralConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
+import { LiquidateCollateralConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
 
 export async function liquidateCollateralTx(
   liquidateCollateral: LiquidateCollateralConfig
@@ -16,9 +16,13 @@ export async function liquidateCollateralTx(
       liquidateCollateraltRedeemer
     )
       .attachSpendingValidator(liquidateCollateral.collateralValidator)
-      .addSignerKey(liquidateCollateral.lenderPubKeyHash);
+      .addSignerKey(liquidateCollateral.lenderPubKeyHash)
+      .complete();
 
-    return tx;
+    return {
+      type: "success",
+      tx: tx,
+    };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
 

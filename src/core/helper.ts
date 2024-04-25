@@ -3,8 +3,8 @@ import {
   CollateralDatum,
   InterestDatum,
   OfferLoanDatum,
-} from "./contract.types.ts";
-import { SelectLoanConfig } from "./global.types.ts";
+} from "./contract.types.js";
+import { SelectLoanConfig } from "./global.types.js";
 
 function weightedShuffle(items: UTxO[], weights: number[]) {
   if (items.length !== weights.length) {
