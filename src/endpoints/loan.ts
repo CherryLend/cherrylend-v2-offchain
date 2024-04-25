@@ -1,7 +1,8 @@
-import { Data, toUnit } from "lucid-cardano";
-import { LoanConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
-import { AssetClassD, CollateralDatum } from "../core/contract.types.ts";
+import { Data, Tx, toUnit } from "lucid-cardano";
+import { LoanConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
+import { AssetClassD, CollateralDatum } from "../core/contract.types.js";
+import { getValidators } from "../core/scripts.js";
 
 export async function loanTx(loanConfig: LoanConfig) {
   try {
@@ -26,16 +27,16 @@ export async function loanTx(loanConfig: LoanConfig) {
       tokenName: loanConfig.loanAsset.tokenName,
     };
 
-    const validFrom = loanConfig.lendTime - 120000;
-    const validTo = loanConfig.lendTime + 120000;
+    // const validFrom = loanConfig.lendTime - 120000;
+    // const validTo = loanConfig.lendTime + 120000;
 
     const tx = lucid.newTx();
     tx.collectFrom(loanConfig.loanUTxOs, "")
       .attachSpendingValidator(loanConfig.loanValidator)
       .attachWithdrawalValidator(loanConfig.loanStakingValidator)
-      .withdraw(loanConfig.loanStakingValidatorAddress, 0n, Data.to(1n))
-      .validFrom(validFrom)
-      .validTo(validTo);
+      .withdraw(loanConfig.loanStakingValidatorAddress, 0n, Data.to(1n));
+    // .validFrom(validFrom)
+    // .validTo(validTo);
 
     for (let i = 0; i < loanConfig.collateralUTxOsInfo.length; i++) {
       const collateralDatum: CollateralDatum = {

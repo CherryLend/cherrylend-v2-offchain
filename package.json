@@ -2,12 +2,16 @@
   "name": "cherrylend-v2-offchain",
   "version": "0.1.0",
   "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "vitest run",
-    "compile": "npx tsc"
+    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean"
   },
-  "module": "commonjs",
-  "type": "module",
   "dependencies": {
     "dotenv": "^16.4.5",
     "lucid-cardano": "^0.10.7",
@@ -20,6 +24,7 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "typescript": "^5.4.4",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "tsup": "^8.0.2"
   }
 }

@@ -1,6 +1,6 @@
 import { Data, Constr } from "lucid-cardano";
-import { InterestConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
+import { InterestConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
 
 export async function interestTx(getInterestConfig: InterestConfig) {
   try {

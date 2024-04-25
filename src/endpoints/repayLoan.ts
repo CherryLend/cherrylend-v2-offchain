@@ -1,7 +1,7 @@
 import { Data, Constr, toUnit } from "lucid-cardano";
-import { RepayLoanConfig } from "../core/global.types.ts";
-import { getLucid } from "../core/utils/utils.ts";
-import { AssetClassD, InterestDatum } from "../core/contract.types.ts";
+import { RepayLoanConfig } from "../core/global.types.js";
+import { getLucid } from "../core/utils/utils.js";
+import { AssetClassD, InterestDatum } from "../core/contract.types.js";
 
 export async function repayLoanTx(interestConfig: RepayLoanConfig) {
   try {
