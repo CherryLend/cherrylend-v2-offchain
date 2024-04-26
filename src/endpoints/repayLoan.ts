@@ -1,12 +1,12 @@
-import { Data, Constr, toUnit } from "lucid-cardano";
+import { Data, Constr, toUnit, Lucid } from "lucid-cardano";
 import { RepayLoanConfig } from "../core/global.types.js";
-import { getLucid } from "../core/utils/utils.js";
 import { AssetClassD, InterestDatum } from "../core/contract.types.js";
 
-export async function repayLoanTx(interestConfig: RepayLoanConfig) {
+export async function repayLoanTx(
+  lucid: Lucid,
+  interestConfig: RepayLoanConfig
+) {
   try {
-    const lucid = await getLucid();
-
     const loanUnit = interestConfig.loanAsset.policyId
       ? toUnit(
           interestConfig.loanAsset.policyId,
@@ -65,7 +65,7 @@ export async function repayLoanTx(interestConfig: RepayLoanConfig) {
       );
     }
 
-    tx.complete();
+    await tx.complete();
 
     return {
       type: "success",

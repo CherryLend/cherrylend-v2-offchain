@@ -28,7 +28,7 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, lender }) => {
 
   const { loanScriptAddress } = await getValidators();
 
-  const tx = await offerLoanTx({
+  const tx = await offerLoanTx(lucid, {
     loanScriptAddress: loanScriptAddress,
     loanUTXoSAmount: [100, 100],
     collateralAmount: 100,
