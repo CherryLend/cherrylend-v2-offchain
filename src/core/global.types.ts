@@ -1,4 +1,9 @@
-import { SpendingValidator, UTxO, WithdrawalValidator } from "lucid-cardano";
+import {
+  Lucid,
+  SpendingValidator,
+  UTxO,
+  WithdrawalValidator,
+} from "lucid-cardano";
 
 export type POSIXTime = number;
 export type CBORHex = string;

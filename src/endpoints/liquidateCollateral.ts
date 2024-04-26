@@ -1,20 +1,19 @@
-import { Data, Constr } from "lucid-cardano";
+import { Data, Constr, Lucid } from "lucid-cardano";
 import { LiquidateCollateralConfig } from "../core/global.types.js";
-import { getLucid } from "../core/utils/utils.js";
 
 export async function liquidateCollateralTx(
+  lucid: Lucid,
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
-    const lucid = await getLucid();
-
     const liquidateCollateraltRedeemer = Data.to(new Constr(1, [1n]));
 
     const tx = lucid.newTx();
-    tx.collectFrom(
-      liquidateCollateral.collateralUTxOs,
-      liquidateCollateraltRedeemer
-    )
+    await tx
+      .collectFrom(
+        liquidateCollateral.collateralUTxOs,
+        liquidateCollateraltRedeemer
+      )
       .attachSpendingValidator(liquidateCollateral.collateralValidator)
       .addSignerKey(liquidateCollateral.lenderPubKeyHash)
       .complete();

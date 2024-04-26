@@ -1,15 +1,16 @@
-import { Data, Constr } from "lucid-cardano";
+import { Data, Constr, Lucid } from "lucid-cardano";
 import { InterestConfig } from "../core/global.types.js";
-import { getLucid } from "../core/utils/utils.js";
 
-export async function interestTx(getInterestConfig: InterestConfig) {
+export async function interestTx(
+  lucid: Lucid,
+  getInterestConfig: InterestConfig
+) {
   try {
-    const lucid = await getLucid();
-
     const getInterestRedeemer = Data.to(new Constr(0, [1n]));
 
     const tx = lucid.newTx();
-    tx.collectFrom(getInterestConfig.interestUTxOs, getInterestRedeemer)
+    await tx
+      .collectFrom(getInterestConfig.interestUTxOs, getInterestRedeemer)
       .attachSpendingValidator(getInterestConfig.interestValidator)
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
       .complete();

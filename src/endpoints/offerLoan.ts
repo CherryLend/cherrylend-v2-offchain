@@ -1,12 +1,12 @@
-import { getLucid } from "../core/utils/utils.js";
 import { AssetClassD, OfferLoanDatum } from "../core/contract.types.js";
 import { OfferLoanConfig } from "../core/global.types.js";
-import { Data, toUnit } from "lucid-cardano";
+import { Data, Lucid, toUnit } from "lucid-cardano";
 
-export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
+export async function offerLoanTx(
+  lucid: Lucid,
+  offerLoanConfig: OfferLoanConfig
+) {
   try {
-    const lucid = await getLucid();
-
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
       tokenName: offerLoanConfig.collateralAsset.tokenName,
@@ -52,7 +52,8 @@ export async function offerLoanTx(offerLoanConfig: OfferLoanConfig) {
       );
     }
 
-    tx.complete();
+    await tx.complete();
+
     return {
       type: "success",
       tx: tx,

@@ -1,14 +1,15 @@
-import { Data, Constr } from "lucid-cardano";
+import { Data, Constr, Lucid } from "lucid-cardano";
 import { CancelLoanConfig } from "../core/global.types.js";
-import { getLucid } from "../core/utils/utils.js";
 
-export async function cancelLoanTx(cancelLoanConfig: CancelLoanConfig) {
+export async function cancelLoanTx(
+  lucid: Lucid,
+  cancelLoanConfig: CancelLoanConfig
+) {
   try {
-    const lucid = await getLucid();
-
     const newCancelRedeemer = Data.to(new Constr(1, [1n]));
     const tx = lucid.newTx();
-    tx.collectFrom(cancelLoanConfig.loanUTxOs, newCancelRedeemer)
+    await tx
+      .collectFrom(cancelLoanConfig.loanUTxOs, newCancelRedeemer)
       .attachSpendingValidator(cancelLoanConfig.loanValidator)
       .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
       .complete();
