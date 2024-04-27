@@ -1,9 +1,12 @@
 import { expect, test, beforeEach } from "vitest";
 import { Data, Emulator, Lucid, UTxO } from "lucid-cardano";
-import { generateAccountSeedPhrase } from "../src/core/utils/utils.ts";
-import { cancelLoanTx } from "../src/endpoints/cancelLoan.ts";
-import { getValidators } from "../src/core/utils/scripts.ts";
-import { AssetClassD, OfferLoanDatum } from "../src/core/contract.types.ts";
+import {
+  InterestDatum,
+  interestTx,
+  getValidators,
+  generateAccountSeedPhrase,
+  AssetClassD,
+} from "../src/index.ts";
 
 type LucidContext = {
   lucid: Lucid;
@@ -20,16 +23,19 @@ beforeEach<LucidContext>(async (context) => {
   context.lucid = await Lucid.new(context.emulator);
 });
 
-test<LucidContext>("Can cancel loan offer", async ({ lucid, lender }) => {
+test<LucidContext>("Can create interest transaction", async ({
+  lucid,
+  lender,
+}) => {
   lucid.selectWalletFromSeed(lender.seedPhrase);
 
-  const { loanValidator, loanScriptAddress } = await getValidators();
+  const { interestValidator, interestValidatorAddress } = await getValidators();
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
   ).paymentCredential?.hash;
 
-  const collateralAsset: AssetClassD = {
+  const loanAsset: AssetClassD = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
     tokenName: "4d657368546f6b656e",
   };
@@ -39,23 +45,15 @@ test<LucidContext>("Can cancel loan offer", async ({ lucid, lender }) => {
     tokenName: "4d657368546f6b656e",
   };
 
-  const loanAsset: AssetClassD = {
-    policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    tokenName: "4d657368546f6b656e",
-  };
-
-  const offerLoanDatum: OfferLoanDatum = {
-    loanAmount: BigInt(100),
-    loanAsset: loanAsset,
-    collateralAmount: BigInt(100),
-    collateralAsset: collateralAsset,
-    interestAmount: BigInt(100),
-    interestAsset: interestAsset,
-    loanDuration: BigInt(100),
+  const interestDatum: InterestDatum = {
+    repayLoanAmount: BigInt(100),
+    repayLoanAsset: loanAsset,
+    repayInterestAmount: BigInt(100),
+    repayInterestAsset: interestAsset,
     lenderPubKeyHash: lenderPubKeyHash as string,
   };
 
-  const datum = Data.to(offerLoanDatum, OfferLoanDatum);
+  const datum = Data.to(interestDatum, InterestDatum);
 
   const cancelLoanUTxO: UTxO = {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
@@ -65,15 +63,15 @@ test<LucidContext>("Can cancel loan offer", async ({ lucid, lender }) => {
       a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e:
         100n,
     },
-    address: loanScriptAddress,
+    address: interestValidatorAddress,
     datumHash: undefined,
     datum: datum,
     scriptRef: undefined,
   };
 
-  const tx = await cancelLoanTx(lucid, {
-    loanUTxOs: [cancelLoanUTxO],
-    loanValidator: loanValidator,
+  const tx = await interestTx(lucid, {
+    interestUTxOs: [cancelLoanUTxO],
+    interestValidator: interestValidator,
     lenderPubKeyHash: lenderPubKeyHash as string,
   });
 
