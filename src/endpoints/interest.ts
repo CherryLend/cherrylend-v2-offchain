@@ -1,5 +1,5 @@
 import { Data, Constr, Lucid } from "lucid-cardano";
-import { InterestConfig } from "../core/global.types.js";
+import { InterestConfig } from "../core/index.js";
 
 export async function interestTx(
   lucid: Lucid,
