@@ -2,7 +2,7 @@ import { expect, test, beforeEach } from "vitest";
 import { Emulator, Lucid } from "lucid-cardano";
 import { generateAccountSeedPhrase } from "../src/core/utils/utils.ts";
 import { offerLoanTx } from "../src/endpoints/offerLoan.ts";
-import { getValidators } from "../src/core/scripts.ts";
+import { getValidators } from "../src/core/utils/scripts.ts";
 
 type LucidContext = {
   lucid: Lucid;

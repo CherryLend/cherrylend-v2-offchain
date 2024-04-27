@@ -1,6 +1,10 @@
 import { Data, Lucid, toUnit } from "lucid-cardano";
-import { LoanConfig } from "../core/global.types.js";
-import { AssetClassD, CollateralDatum } from "../core/contract.types.js";
+import {
+  getValidityRange,
+  AssetClassD,
+  CollateralDatum,
+  LoanConfig,
+} from "../core/index.js";
 
 export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
   try {
@@ -23,8 +27,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       tokenName: loanConfig.loanAsset.tokenName,
     };
 
-    const validFrom = loanConfig.lendTime - 120000;
-    const validTo = loanConfig.lendTime + 120000;
+    const { validFrom, validTo } = getValidityRange();
 
     const tx = lucid.newTx();
     tx.collectFrom(loanConfig.loanUTxOs, "")
@@ -36,13 +39,13 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
 
     for (let i = 0; i < loanConfig.collateralUTxOsInfo.length; i++) {
       const collateralDatum: CollateralDatum = {
-        loanAsset: loanAsset,
         loanAmount: BigInt(loanConfig.collateralUTxOsInfo[i].loanAmount),
+        loanAsset: loanAsset,
         collateralAsset: collateralAsset,
-        interestAsset: interestAsset,
         interestAmount: BigInt(
           loanConfig.collateralUTxOsInfo[i].interestAmount
         ),
+        interestAsset: interestAsset,
         loanDuration: BigInt(loanConfig.collateralUTxOsInfo[i].loanDuration),
         lendTime: BigInt(loanConfig.lendTime),
         lenderPubKeyHash: loanConfig.collateralUTxOsInfo[i].lenderPubKeyHash,

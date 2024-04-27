@@ -1,5 +1,5 @@
 import { Data, Constr, Lucid } from "lucid-cardano";
-import { CancelLoanConfig } from "../core/global.types.js";
+import { CancelLoanConfig } from "../core/index.js";
 
 export async function cancelLoanTx(
   lucid: Lucid,

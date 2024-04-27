@@ -1,6 +1,5 @@
 import { Data, Constr, toUnit, Lucid } from "lucid-cardano";
-import { RepayLoanConfig } from "../core/global.types.js";
-import { AssetClassD, InterestDatum } from "../core/contract.types.js";
+import { AssetClassD, InterestDatum, RepayLoanConfig } from "../core/index.js";
 
 export async function repayLoanTx(
   lucid: Lucid,

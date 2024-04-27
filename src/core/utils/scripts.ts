@@ -5,7 +5,7 @@ import {
   WithdrawalValidator,
   applyDoubleCborEncoding,
 } from "lucid-cardano";
-import { getLucid } from "./utils/utils.js";
+import { getLucid } from "./utils.js";
 
 function bytesToValidator(bytes: string) {
   const script: SpendingValidator = {
@@ -45,6 +45,8 @@ export async function getValidators() {
   const interestValidator = bytesToValidator(interestValidatorCBOR);
   const interestValidatorHash =
     lucid.utils.validatorToScriptHash(interestValidator);
+  const interestValidatorAddress =
+    lucid.utils.validatorToAddress(interestValidator);
 
   const collateralValidator: SpendingValidator = {
     type: "PlutusV2",
@@ -81,14 +83,15 @@ export async function getValidators() {
   const loanScriptAddress = lucid.utils.validatorToAddress(loanValidator);
 
   return {
-    interestValidator,
     collateralValidator,
-    loanValidator,
     collateralStakingValidator,
-    loanStakingValidator,
-    loanRewardAddress,
     collateralRewardAddress,
     collateralScriptAddress,
+    loanValidator,
+    loanStakingValidator,
+    loanRewardAddress,
     loanScriptAddress,
+    interestValidator,
+    interestValidatorAddress,
   };
 }

@@ -48,3 +48,12 @@ export function quickSubmitBuilder(emulator: Emulator) {
     return txHash;
   };
 }
+
+export function getValidityRange() {
+  const currentPosixTime = Math.floor(new Date().getTime());
+  const validityRange = {
+    validFrom: currentPosixTime,
+    validTo: currentPosixTime + 120_000,
+  };
+  return validityRange;
+}
