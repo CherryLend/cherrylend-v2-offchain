@@ -6,14 +6,13 @@ export async function liquidateCollateralTx(
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
-    const liquidateCollateraltRedeemer = Data.to(new Constr(1, [1n]));
+    const redeemer = Data.to(
+      new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
+    );
     const { validFrom, validTo } = getValidityRange();
     const tx = lucid.newTx();
-    await tx
-      .collectFrom(
-        liquidateCollateral.collateralUTxOs,
-        liquidateCollateraltRedeemer
-      )
+    const completedTx = await tx
+      .collectFrom(liquidateCollateral.collateralUTxOs, redeemer)
       .attachSpendingValidator(liquidateCollateral.collateralValidator)
       .addSignerKey(liquidateCollateral.lenderPubKeyHash)
       .validFrom(validFrom)
@@ -22,10 +21,9 @@ export async function liquidateCollateralTx(
 
     return {
       type: "success",
-      tx: tx,
+      tx: completedTx,
     };
   } catch (error) {
-    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };

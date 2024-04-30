@@ -9,7 +9,7 @@ export async function interestTx(
     const getInterestRedeemer = Data.to(new Constr(0, [1n]));
 
     const tx = lucid.newTx();
-    await tx
+    const completedTx = await tx
       .collectFrom(getInterestConfig.interestUTxOs, getInterestRedeemer)
       .attachSpendingValidator(getInterestConfig.interestValidator)
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
@@ -17,7 +17,7 @@ export async function interestTx(
 
     return {
       type: "success",
-      tx: tx,
+      tx: completedTx,
     };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };

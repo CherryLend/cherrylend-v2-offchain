@@ -1,4 +1,4 @@
-import { Data, Lucid, toUnit } from "lucid-cardano";
+import { Constr, Data, Lucid, toUnit } from "lucid-cardano";
 import {
   getValidityRange,
   AssetClassD,
@@ -27,13 +27,18 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       tokenName: loanConfig.loanAsset.tokenName,
     };
 
+    const tx = lucid.newTx();
+
+    const redeemer = Data.to(
+      new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
+    );
+
     const { validFrom, validTo } = getValidityRange();
 
-    const tx = lucid.newTx();
-    tx.collectFrom(loanConfig.loanUTxOs, "")
+    tx.collectFrom(loanConfig.loanUTxOs, redeemer)
       .attachSpendingValidator(loanConfig.loanValidator)
-      .attachWithdrawalValidator(loanConfig.loanStakingValidator)
       .withdraw(loanConfig.loanStakingValidatorAddress, 0n, Data.to(1n))
+      .attachWithdrawalValidator(loanConfig.loanStakingValidator)
       .validFrom(validFrom)
       .validTo(validTo);
 
@@ -47,7 +52,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         ),
         interestAsset: interestAsset,
         loanDuration: BigInt(loanConfig.collateralUTxOsInfo[i].loanDuration),
-        lendTime: BigInt(loanConfig.lendTime),
+        lendTime: BigInt(validFrom),
         lenderPubKeyHash: loanConfig.collateralUTxOsInfo[i].lenderPubKeyHash,
         totalInterestAmount: BigInt(loanConfig.total_interest_amount),
         totalLoanAmount: BigInt(loanConfig.total_loan_amount),
@@ -64,10 +69,12 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         }
       );
     }
-    tx.complete();
+
+    const completedTx = await tx.complete();
+
     return {
       type: "success",
-      tx: tx,
+      tx: completedTx,
     };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
