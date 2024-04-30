@@ -51,11 +51,11 @@ export async function offerLoanTx(
       );
     }
 
-    await tx.complete();
+    const completedTx = await tx.complete();
 
     return {
       type: "success",
-      tx: tx,
+      tx: completedTx,
     };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };

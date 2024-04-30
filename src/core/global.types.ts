@@ -1,9 +1,4 @@
-import {
-  Lucid,
-  SpendingValidator,
-  UTxO,
-  WithdrawalValidator,
-} from "lucid-cardano";
+import { SpendingValidator, UTxO, WithdrawalValidator } from "lucid-cardano";
 
 export type POSIXTime = number;
 export type CBORHex = string;
@@ -41,7 +36,6 @@ export type LoanConfig = {
   interestAsset: AssetClass;
   total_interest_amount: number;
   total_loan_amount: number;
-  lendTime: POSIXTime;
   borrowerPubKeyHash: string;
   collateralUTxOsInfo: CollateralUTxOsInfo[];
   loanValidator: SpendingValidator;

@@ -30,7 +30,9 @@ export async function repayLoanTx(
       tokenName: interestConfig.loanAsset.tokenName,
     };
 
-    const redeemer = Data.to(new Constr(0, []));
+    const redeemer = Data.to(
+      new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
+    );
 
     const tx = lucid.newTx();
     tx.collectFrom(interestConfig.collateralUTxOs, redeemer)
@@ -64,11 +66,11 @@ export async function repayLoanTx(
       );
     }
 
-    await tx.complete();
+    const completedTx = await tx.complete();
 
     return {
       type: "success",
-      tx: tx,
+      tx: completedTx,
     };
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
