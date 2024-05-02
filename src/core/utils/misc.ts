@@ -5,6 +5,8 @@ import {
   OfferLoanDatum,
 } from "../contract.types.js";
 import { SelectLoanConfig } from "../global.types.js";
+import { getValidators } from "./scripts.js";
+import { getLucid } from "./utils.js";
 
 function weightedShuffle(items: UTxO[], weights: number[]) {
   if (items.length !== weights.length) {
@@ -45,9 +47,11 @@ function weightedShuffle(items: UTxO[], weights: number[]) {
   return shuffledItems;
 }
 
-export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
+export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
+  const utxos = await getAllLoanUTxOs();
+
   // Get all offers that match the loan amount, loan asset, collateral asset, and APR
-  const availableOffers = selectLoanConfig.utxos.filter((utxo) => {
+  const availableOffers = utxos.filter((utxo) => {
     try {
       const datum = Data.castFrom(
         Data.from(utxo.datum as string),
@@ -76,7 +80,8 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   );
   const orderedShuffle = weightedShuffle(availableOffers, weights);
 
-  let loanUTxOs: UTxO[] = [];
+  const loanOffersWithDatum = [];
+
   let totalLoanAmount = selectLoanConfig.loanAmount;
 
   // Fill the loan
@@ -87,18 +92,20 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
 
     const loanAmount = parseInt(datum.loanAmount.toString());
     if (totalLoanAmount - loanAmount >= 0) {
-      loanUTxOs.push(offer);
+      loanOffersWithDatum.push({
+        loanOfferUTxO: offer,
+        datum: datum,
+      });
       totalLoanAmount -= loanAmount;
     }
   }
 
-  return loanUTxOs;
+  return loanOffersWithDatum;
 }
 
-export function getBorrowersCollateral(
-  utxos: UTxO[],
-  borrowerPubKeyHash: string
-) {
+export async function getBorrowersCollateral(borrowerPubKeyHash: string) {
+  const utxos = await getAllCollateralUTxOs();
+
   const collateralUTxOs = utxos.filter((utxo) => {
     try {
       const datum = toCollateralDatum(utxo.datum as string);
@@ -119,7 +126,9 @@ export function getBorrowersCollateral(
   return collateralUTxOsInfo;
 }
 
-export function getLendersLoanOffers(utxos: UTxO[], lenderPubKeyHash: string) {
+export async function getLendersLoanOffers(lenderPubKeyHash: string) {
+  const utxos = await getAllLoanUTxOs();
+
   const lendersLoanOffers = utxos.filter((utxo) => {
     try {
       const datum = toOfferLoanDatum(utxo.datum as string);
@@ -140,10 +149,9 @@ export function getLendersLoanOffers(utxos: UTxO[], lenderPubKeyHash: string) {
   return lendersLoanOffersInfo;
 }
 
-export function getLendersInterestPayment(
-  utxos: UTxO[],
-  lenderPubKeyHash: string
-) {
+export async function getLendersInterestPayment(lenderPubKeyHash: string) {
+  const utxos = await getAllInterestUTxOs();
+
   const lendersInterestPayment = utxos.filter((utxo) => {
     try {
       const datum = toInterestDatum(utxo.datum as string);
@@ -164,10 +172,9 @@ export function getLendersInterestPayment(
   return lendersInterestPaymentInfo;
 }
 
-export function getLendersLiquidateCollateral(
-  utxos: UTxO[],
-  lenderPubKeyHash: string
-) {
+export async function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
+  const utxos = await getAllCollateralUTxOs();
+
   const lendersUTXoS = utxos.filter((utxo) => {
     try {
       const datum = toCollateralDatum(utxo.datum as string);
@@ -230,14 +237,58 @@ export function getInterestInfoFromCollateral(
   });
 }
 
-const toCollateralDatum = (datum: string) => {
+export function splitLoanAmount(amountInEachUTx0: number, amount: number) {
+  // Check if it is divisible by the minimun amount, or the minAmount is a multiple of the remainder
+  const remainder = amount % amountInEachUTx0;
+  if (remainder !== 0 && amountInEachUTx0 % remainder !== 0) {
+    throw new Error(
+      `Please provide a valid loan amount that can be split up into ${amountInEachUTx0}, or ${amountInEachUTx0} is a multiple of the remainder.`
+    );
+  }
+
+  const splitAmounts = [];
+  let remainingAmount = amount;
+  while (remainingAmount > 0) {
+    const splitAmount = Math.min(amountInEachUTx0, remainingAmount);
+    splitAmounts.push(splitAmount);
+    remainingAmount -= splitAmount;
+  }
+
+  return splitAmounts;
+}
+
+function toCollateralDatum(datum: string) {
   return Data.castFrom(Data.from(datum), CollateralDatum);
-};
+}
 
-const toOfferLoanDatum = (datum: string) => {
+function toOfferLoanDatum(datum: string) {
   return Data.castFrom(Data.from(datum), OfferLoanDatum);
-};
+}
 
-const toInterestDatum = (datum: string) => {
+function toInterestDatum(datum: string) {
   return Data.castFrom(Data.from(datum), InterestDatum);
-};
+}
+
+async function getAllCollateralUTxOs() {
+  const lucid = await getLucid();
+  const { collateralScriptAddress } = await getValidators();
+
+  const scriptUtxos = await lucid.utxosAt(collateralScriptAddress);
+  return scriptUtxos;
+}
+
+async function getAllLoanUTxOs() {
+  const lucid = await getLucid();
+  const { loanScriptAddress } = await getValidators();
+
+  const scriptUtxos = await lucid.utxosAt(loanScriptAddress);
+  return scriptUtxos;
+}
+
+async function getAllInterestUTxOs() {
+  const lucid = await getLucid();
+  const { interestScriptAddress } = await getValidators();
+
+  const scriptUtxos = await lucid.utxosAt(interestScriptAddress);
+  return scriptUtxos;
+}
