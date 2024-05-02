@@ -1,19 +1,30 @@
 import { Data, Constr, Lucid } from "lucid-cardano";
-import { getValidityRange, LiquidateCollateralConfig } from "../core/index.js";
+import {
+  getValidators,
+  getValidityRange,
+  LiquidateCollateralConfig,
+} from "../core/index.js";
 
 export async function liquidateCollateralTx(
   lucid: Lucid,
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
+    const { collateralValidator } = await getValidators();
+
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
     );
-    const { validFrom, validTo } = getValidityRange();
+
+    const { validFrom, validTo } = getValidityRange(
+      lucid,
+      liquidateCollateral.now
+    );
+
     const tx = lucid.newTx();
     const completedTx = await tx
       .collectFrom(liquidateCollateral.collateralUTxOs, redeemer)
-      .attachSpendingValidator(liquidateCollateral.collateralValidator)
+      .attachSpendingValidator(collateralValidator)
       .addSignerKey(liquidateCollateral.lenderPubKeyHash)
       .validFrom(validFrom)
       .validTo(validTo)

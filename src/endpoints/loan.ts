@@ -4,10 +4,18 @@ import {
   AssetClassD,
   CollateralDatum,
   LoanConfig,
+  getValidators,
 } from "../core/index.js";
 
 export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
   try {
+    const {
+      loanValidator,
+      loanStakingValidator,
+      loanRewardAddress,
+      collateralScriptAddress,
+    } = await getValidators();
+
     const loanUnit = loanConfig.loanAsset.policyId
       ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.tokenName)
       : "lovelace";
@@ -29,16 +37,16 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
 
     const tx = lucid.newTx();
 
+    const { validFrom, validTo } = getValidityRange(lucid, loanConfig.now);
+
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
     );
 
-    const { validFrom, validTo } = getValidityRange();
-
     tx.collectFrom(loanConfig.loanUTxOs, redeemer)
-      .attachSpendingValidator(loanConfig.loanValidator)
-      .withdraw(loanConfig.loanStakingValidatorAddress, 0n, Data.to(1n))
-      .attachWithdrawalValidator(loanConfig.loanStakingValidator)
+      .attachSpendingValidator(loanValidator)
+      .withdraw(loanRewardAddress, 0n, Data.to(1n))
+      .attachWithdrawalValidator(loanStakingValidator)
       .validFrom(validFrom)
       .validTo(validTo);
 
@@ -60,7 +68,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       };
 
       tx.payToContract(
-        loanConfig.collateralScriptAddress,
+        collateralScriptAddress,
         { inline: Data.to(collateralDatum, CollateralDatum) },
         {
           [loanUnit]: BigInt(

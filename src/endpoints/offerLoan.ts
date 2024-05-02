@@ -1,11 +1,19 @@
 import { Data, Lucid, toUnit } from "lucid-cardano";
-import { OfferLoanConfig, AssetClassD, OfferLoanDatum } from "../core/index.js";
+import {
+  OfferLoanConfig,
+  AssetClassD,
+  OfferLoanDatum,
+  getValidators,
+  splitLoanAmount,
+} from "../core/index.js";
 
 export async function offerLoanTx(
   lucid: Lucid,
   offerLoanConfig: OfferLoanConfig
 ) {
   try {
+    const { loanScriptAddress } = await getValidators();
+
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
       tokenName: offerLoanConfig.collateralAsset.tokenName,
@@ -29,10 +37,16 @@ export async function offerLoanTx(
           )
         : "lovelace";
 
+    const loanUTXoSAmount = splitLoanAmount(
+      offerLoanConfig.totalLoanAmount,
+      offerLoanConfig.amountInEachUTxO
+    );
+
     const tx = lucid.newTx();
-    for (let i = 0; i < offerLoanConfig.loanUTXoSAmount.length; i++) {
+
+    for (let i = 0; i < loanUTXoSAmount.length; i++) {
       const offerLoanDatum: OfferLoanDatum = {
-        loanAmount: BigInt(offerLoanConfig.loanUTXoSAmount[i]),
+        loanAmount: BigInt(loanUTXoSAmount[i]),
         loanAsset: loanAsset,
         collateralAmount: BigInt(offerLoanConfig.collateralAmount),
         collateralAsset: collateralAsset,
@@ -43,10 +57,10 @@ export async function offerLoanTx(
       };
 
       tx.payToContract(
-        offerLoanConfig.loanScriptAddress,
+        loanScriptAddress,
         { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
         {
-          [loanUnit]: BigInt(offerLoanConfig.loanUTXoSAmount[i]),
+          [loanUnit]: BigInt(loanUTXoSAmount[i]),
         }
       );
     }
