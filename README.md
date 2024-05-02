@@ -34,6 +34,7 @@ export type CancelLoanConfig = {
 };
 ```
 
+
 Loans by this lender can be retrieved by using this function which takes in the lenders pubKeyHash
 ```
 function getLendersLoanOffers(lenderPubKeyHash: string){
@@ -50,6 +51,7 @@ export type LiquidateCollateralConfig = {
 };
 ```
 
+
 Collateral that can be liquidated by this lender can be retrieved by using this function which takes in the lenders pubKeyHash
 ```
 function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
@@ -65,6 +67,7 @@ export type InterestConfig = {
   interestUTxOs: UTxO[];
 };
 ```
+
 
 Interests by this lender can be retrieved by using this function which takes in the lenders pubKeyHash
 ```
@@ -88,15 +91,29 @@ export type LoanConfig = {
 };
 ```
 
-The function `selectLoanOffers` takes in `SelectLoanConfig` as a params and returns UTxOs that will fullfill the loan requirement as well as datums formated in a json.
+
+The function `selectLoanOffers` takes in `SelectLoanConfig` as a params and returns UTxOs that will fullfill the loan requirement as well as datums formated in a JSON.
 ```
+function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
+...
+}
+
 export type SelectLoanConfig = {
   loanAmount: number;
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
   apr: number;
 };
+
+// It returns
+[
+ {
+   utxo : UTxO,
+   datum: LoanOfferDatum
+ }
+]
 ```
+
 
 The field `collateralUTxOsInfo` can be retrieved by using this function `getCollateralInfoFromLoan` which takes in the list of datums returned from `selectLoanOffers`
 ```
@@ -106,34 +123,44 @@ function getCollateralInfoFromLoan(loanOfferUtxosDatum: OfferLoanDatum[]){
 ```
 
 ### Repay Loan
-The endpoint `loanTx` takes in lucid and `LoanConfig` as its params. 
+The endpoint `repayLoanTx` takes in lucid and `RepayLoanConfig` as its params. 
 ```
-export type LoanConfig = {
-  loanUTxOs: UTxO[];
+export type RepayLoanConfig = {
   loanAsset: AssetClass;
-  collateralAsset: AssetClass;
   interestAsset: AssetClass;
-  total_interest_amount: number;
-  total_loan_amount: number;
-  borrowerPubKeyHash: string;
-  collateralUTxOsInfo: CollateralUTxOsInfo[];
-  now: POSIXTime;
+  borrowerPubKeyAddress: string;
+  collateralUTxOs: UTxO[];
+  interestUTxOsInfo: InterestUTxOsInfo[];
 };
 ```
 
-The function `selectLoanOffers` takes in `SelectLoanConfig` as a params and returns UTxOs that will fullfill the loan requirement as well as datums formated in a json.
+
+The function `getBorrowersCollateral` takes in `borrowerPubKeyHash` as a params and returns collateral this borrower has locked up in the contract as well as datum associated with the collateral UTxOs.
 ```
+async function getBorrowersCollateral(borrowerPubKeyHash: string){
+...
+
+}
 export type SelectLoanConfig = {
   loanAmount: number;
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
   apr: number;
 };
+
+// It returns
+[
+ {
+   utxo : UTxO,
+   datum: LoanOfferDatum
+ }
+]
 ```
 
-The field `collateralUTxOsInfo` can be retrieved by using this function `getCollateralInfoFromLoan` which takes in the list of datums returned from `selectLoanOffers`
+
+The field `interestUTxOsInfo` can be retrieved by using this function `getInterestInfoFromCollateral` which takes in the list of datums returned from `getBorrowersCollateral`
 ```
-function getCollateralInfoFromLoan(loanOfferUtxosDatum: OfferLoanDatum[]){
+export function getInterestInfoFromCollateral( interestUtxosDatum: CollateralDatum[])
 ...
 }
 
