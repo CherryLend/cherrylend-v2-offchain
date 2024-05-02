@@ -196,7 +196,7 @@ export function getLendersLiquidateCollateral(
   return lendersUTXoSInfo;
 }
 
-export function getCollateralInfoFromDatum(
+export function getCollateralInfoFromLoan(
   loanOfferUtxosDatum: OfferLoanDatum[]
 ) {
   return loanOfferUtxosDatum.map((utxo) => {
@@ -210,6 +210,21 @@ export function getCollateralInfoFromDatum(
       collateralAmount: collateralAmount,
       interestAmount: interestAmount,
       loanDuration: loanDuration,
+      lenderPubKeyHash: lenderPubKeyHash,
+    };
+  });
+}
+
+export function getInterestInfoFromCollateral(
+  interestUtxosDatum: CollateralDatum[]
+) {
+  return interestUtxosDatum.map((utxo) => {
+    const repayLoanAmount = parseInt(utxo.loanAmount.toString());
+    const repayInterestAmount = parseInt(utxo.interestAmount.toString());
+    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+    return {
+      repayLoanAmount: repayLoanAmount,
+      repayInterestAmount: repayInterestAmount,
       lenderPubKeyHash: lenderPubKeyHash,
     };
   });
