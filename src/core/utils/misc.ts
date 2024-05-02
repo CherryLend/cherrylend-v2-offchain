@@ -49,7 +49,10 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   // Get all offers that match the loan amount, loan asset, collateral asset, and APR
   const availableOffers = selectLoanConfig.utxos.filter((utxo) => {
     try {
-      const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
+      const datum = Data.castFrom(
+        Data.from(utxo.datum as string),
+        OfferLoanDatum
+      );
       const interestAmount =
         (parseInt(datum.loanAmount.toString()) * selectLoanConfig.apr) / 100;
       if (
@@ -92,39 +95,56 @@ export function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   return loanUTxOs;
 }
 
-export function getAllBorrowersCollateral(
+export function getBorrowersCollateral(
   utxos: UTxO[],
   borrowerPubKeyHash: string
 ) {
-  return utxos.filter((utxo) => {
+  const collateralUTxOs = utxos.filter((utxo) => {
     try {
-      const datum = Data.castFrom(utxo.datum as string, CollateralDatum);
+      const datum = toCollateralDatum(utxo.datum as string);
       return datum.borrowerPubKeyHash === borrowerPubKeyHash;
     } catch (error) {
       return false;
     }
   });
+
+  const collateralUTxOsInfo = collateralUTxOs.map((utxo) => {
+    const datum = toCollateralDatum(utxo.datum as string);
+    return {
+      collateralUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return collateralUTxOsInfo;
 }
 
-export function getAllLendersLoanOffers(
-  utxos: UTxO[],
-  lenderPubKeyHash: string
-) {
-  return utxos.filter((utxo) => {
+export function getLendersLoanOffers(utxos: UTxO[], lenderPubKeyHash: string) {
+  const lendersLoanOffers = utxos.filter((utxo) => {
     try {
-      const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
+      const datum = toOfferLoanDatum(utxo.datum as string);
       return datum.lenderPubKeyHash === lenderPubKeyHash;
     } catch (error) {
       return false;
     }
   });
+
+  const lendersLoanOffersInfo = lendersLoanOffers.map((utxo) => {
+    const datum = Data.castFrom(utxo.datum as string, OfferLoanDatum);
+    return {
+      loanOfferUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return lendersLoanOffersInfo;
 }
 
-export function getAllLendersInterestPayment(
+export function getLendersInterestPayment(
   utxos: UTxO[],
   lenderPubKeyHash: string
 ) {
-  return utxos.filter((utxo) => {
+  const lendersInterestPayment = utxos.filter((utxo) => {
     try {
       const datum = Data.castFrom(utxo.datum as string, InterestDatum);
       return datum.lenderPubKeyHash === lenderPubKeyHash;
@@ -132,13 +152,23 @@ export function getAllLendersInterestPayment(
       return false;
     }
   });
+
+  const lendersInterestPaymentInfo = lendersInterestPayment.map((utxo) => {
+    const datum = Data.castFrom(utxo.datum as string, InterestDatum);
+    return {
+      interestPaymentUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return lendersInterestPaymentInfo;
 }
 
-export function getAllLendersLiquidateCollateral(
+export function getLendersLiquidateCollateral(
   utxos: UTxO[],
   lenderPubKeyHash: string
 ) {
-  return utxos.filter((utxo) => {
+  const lendersUTXoS = utxos.filter((utxo) => {
     try {
       const datum = Data.castFrom(utxo.datum as string, CollateralDatum);
       const currentPosixTime = Math.floor(Date.now() / 1000);
@@ -154,4 +184,45 @@ export function getAllLendersLiquidateCollateral(
       return false;
     }
   });
+
+  const lendersUTXoSInfo = lendersUTXoS.map((utxo) => {
+    const datum = Data.castFrom(utxo.datum as string, CollateralDatum);
+    return {
+      collateralUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return lendersUTXoSInfo;
 }
+
+export function getCollateralInfoFromDatum(
+  loanOfferUtxosDatum: OfferLoanDatum[]
+) {
+  return loanOfferUtxosDatum.map((utxo) => {
+    const loanAmount = parseInt(utxo.loanAmount.toString());
+    const collateralAmount = parseInt(utxo.collateralAmount.toString());
+    const interestAmount = parseInt(utxo.interestAmount.toString());
+    const loanDuration = parseInt(utxo.loanDuration.toString());
+    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+    return {
+      loanAmount: loanAmount,
+      collateralAmount: collateralAmount,
+      interestAmount: interestAmount,
+      loanDuration: loanDuration,
+      lenderPubKeyHash: lenderPubKeyHash,
+    };
+  });
+}
+
+const toCollateralDatum = (datum: string) => {
+  return Data.castFrom(Data.from(datum), CollateralDatum);
+};
+
+const toOfferLoanDatum = (datum: string) => {
+  return Data.castFrom(Data.from(datum), OfferLoanDatum);
+};
+
+const toInterestDatum = (datum: string) => {
+  return Data.castFrom(Data.from(datum), InterestDatum);
+};
