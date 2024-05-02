@@ -1,11 +1,18 @@
 import { Data, Lucid, toUnit } from "lucid-cardano";
-import { OfferLoanConfig, AssetClassD, OfferLoanDatum } from "../core/index.js";
+import {
+  OfferLoanConfig,
+  AssetClassD,
+  OfferLoanDatum,
+  getValidators,
+} from "../core/index.js";
 
 export async function offerLoanTx(
   lucid: Lucid,
   offerLoanConfig: OfferLoanConfig
 ) {
   try {
+    const { loanScriptAddress } = await getValidators();
+
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
       tokenName: offerLoanConfig.collateralAsset.tokenName,
@@ -43,7 +50,7 @@ export async function offerLoanTx(
       };
 
       tx.payToContract(
-        offerLoanConfig.loanScriptAddress,
+        loanScriptAddress,
         { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
         {
           [loanUnit]: BigInt(offerLoanConfig.loanUTXoSAmount[i]),

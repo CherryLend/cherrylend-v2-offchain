@@ -1,4 +1,4 @@
-import { SpendingValidator, UTxO, WithdrawalValidator } from "lucid-cardano";
+import { UTxO } from "lucid-cardano";
 
 export type POSIXTime = number;
 export type CBORHex = string;
@@ -18,7 +18,6 @@ export type OfferLoanConfig = {
   lenderPubKeyHash: string;
   loanDuration: POSIXTime;
   loanUTXoSAmount: number[];
-  loanScriptAddress: Address;
 };
 
 type CollateralUTxOsInfo = {
@@ -38,10 +37,7 @@ export type LoanConfig = {
   total_loan_amount: number;
   borrowerPubKeyHash: string;
   collateralUTxOsInfo: CollateralUTxOsInfo[];
-  loanValidator: SpendingValidator;
-  loanStakingValidator: WithdrawalValidator;
-  loanStakingValidatorAddress: Address;
-  collateralScriptAddress: Address;
+  now: POSIXTime;
 };
 
 type InterestUTxOsInfo = {
@@ -56,27 +52,22 @@ export type RepayLoanConfig = {
   borrowerPubKeyAddress: string;
   collateralUTxOs: UTxO[];
   interestUTxOsInfo: InterestUTxOsInfo[];
-  collateralValidator: SpendingValidator;
-  collateralStakingValidator: WithdrawalValidator;
-  interestScriptAddress: Address;
 };
 
 export type CancelLoanConfig = {
   lenderPubKeyHash: string;
   loanUTxOs: UTxO[];
-  loanValidator: SpendingValidator;
 };
 
 export type InterestConfig = {
   lenderPubKeyHash: string;
   interestUTxOs: UTxO[];
-  interestValidator: SpendingValidator;
 };
 
 export type LiquidateCollateralConfig = {
   lenderPubKeyHash: string;
   collateralUTxOs: UTxO[];
-  collateralValidator: SpendingValidator;
+  now: POSIXTime;
 };
 
 export type SelectLoanConfig = {
