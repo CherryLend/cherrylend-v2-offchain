@@ -103,6 +103,20 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   return loanOffersWithDatum;
 }
 
+export async function getAllLoanOffers() {
+  const utxos = await getAllLoanUTxOs();
+
+  const loanOffers = utxos.map((utxo) => {
+    const datum = toOfferLoanDatum(utxo.datum as string);
+    return {
+      loanOfferUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return loanOffers;
+}
+
 export async function getBorrowersCollateral(borrowerPubKeyHash: string) {
   const utxos = await getAllCollateralUTxOs();
 
@@ -147,6 +161,29 @@ export async function getLendersLoanOffers(lenderPubKeyHash: string) {
   });
 
   return lendersLoanOffersInfo;
+}
+
+export async function getLendersCollateral(lenderPubKeyHash: string) {
+  const utxos = await getAllCollateralUTxOs();
+
+  const lendersCollateral = utxos.filter((utxo) => {
+    try {
+      const datum = toCollateralDatum(utxo.datum as string);
+      return datum.lenderPubKeyHash === lenderPubKeyHash;
+    } catch (error) {
+      return false;
+    }
+  });
+
+  const lendersCollateralInfo = lendersCollateral.map((utxo) => {
+    const datum = toCollateralDatum(utxo.datum as string);
+    return {
+      collateralUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return lendersCollateralInfo;
 }
 
 export async function getLendersInterestPayment(lenderPubKeyHash: string) {
