@@ -2,7 +2,6 @@ import { expect, test, beforeEach } from "vitest";
 import { Emulator, Lucid } from "lucid-cardano";
 import { generateAccountSeedPhrase } from "../src/core/utils/utils.ts";
 import { offerLoanTx } from "../src/endpoints/offerLoan.ts";
-import { getValidators } from "../src/core/utils/scripts.ts";
 
 type LucidContext = {
   lucid: Lucid;
@@ -26,11 +25,7 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, lender }) => {
     await lucid.wallet.address()
   ).paymentCredential?.hash;
 
-  const { loanScriptAddress } = await getValidators();
-
   const tx = await offerLoanTx(lucid, {
-    loanScriptAddress: loanScriptAddress,
-    loanUTXoSAmount: [100, 100],
     collateralAmount: 100,
     collateralAsset: {
       policyId: "",
@@ -47,6 +42,8 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, lender }) => {
     },
     loanDuration: 100,
     lenderPubKeyHash: lenderPubKeyHash as string,
+    totalLoanAmount: 300,
+    amountInEachUTxO: 100,
   });
 
   expect(tx.type).toBe("success");

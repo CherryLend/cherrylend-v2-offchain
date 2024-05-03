@@ -50,9 +50,10 @@ type InterestUTxOsInfo = {
 export type RepayLoanConfig = {
   loanAsset: AssetClass;
   interestAsset: AssetClass;
-  borrowerPubKeyAddress: string;
   collateralUTxOs: UTxO[];
   interestUTxOsInfo: InterestUTxOsInfo[];
+  now: POSIXTime;
+  borrowerPubKeyHash: string;
 };
 
 export type CancelLoanConfig = {

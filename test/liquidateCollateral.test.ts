@@ -6,6 +6,7 @@ import {
   generateAccountSeedPhrase,
   CollateralDatum,
   AssetClassD,
+  LiquidateCollateralConfig,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -26,11 +27,11 @@ beforeEach<LucidContext>(async (context) => {
 test<LucidContext>("Can create interest transaction", async ({
   lucid,
   lender,
+  emulator,
 }) => {
   lucid.selectWalletFromSeed(lender.seedPhrase);
 
-  const { collateralValidator, collateralScriptAddress } =
-    await getValidators();
+  const { collateralScriptAddress } = await getValidators();
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
@@ -50,7 +51,7 @@ test<LucidContext>("Can create interest transaction", async ({
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
     tokenName: "4d657368546f6b656e",
   };
-  const currentPosixTime = Math.floor(new Date().getTime()) - 1000;
+
   const collateralDatum: CollateralDatum = {
     loanAmount: BigInt(100),
     loanAsset: loanAsset,
@@ -58,7 +59,7 @@ test<LucidContext>("Can create interest transaction", async ({
     interestAmount: BigInt(100),
     interestAsset: interestAsset,
     loanDuration: BigInt(10),
-    lendTime: BigInt(currentPosixTime),
+    lendTime: BigInt(emulator.now() - 100_000),
     lenderPubKeyHash: lenderPubKeyHash as string,
     totalInterestAmount: BigInt(100),
     totalLoanAmount: BigInt(100),
@@ -81,11 +82,13 @@ test<LucidContext>("Can create interest transaction", async ({
     scriptRef: undefined,
   };
 
-  const tx = await liquidateCollateralTx(lucid, {
+  const liquidateCollateralConfig: LiquidateCollateralConfig = {
     collateralUTxOs: [cancelLoanUTxO],
-    collateralValidator: collateralValidator,
     lenderPubKeyHash: lenderPubKeyHash as string,
-  });
+    now: emulator.now(),
+  };
+
+  const tx = await liquidateCollateralTx(lucid, liquidateCollateralConfig);
 
   expect(tx.type).toBe("success");
 });

@@ -7,6 +7,7 @@ import {
   AssetClassD,
   OfferLoanDatum,
   getValidators,
+  getCollateralInfoFromLoan,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -24,16 +25,14 @@ beforeEach<LucidContext>(async (context) => {
   context.lucid = await Lucid.new(context.emulator);
 });
 
-test<LucidContext>("Can get loan offer", async ({ lucid, lender }) => {
+test<LucidContext>("Can get loan offer", async ({
+  lucid,
+  lender,
+  emulator,
+}) => {
   lucid.selectWalletFromSeed(lender.seedPhrase);
 
-  const {
-    loanStakingValidator,
-    loanValidator,
-    loanScriptAddress,
-    collateralScriptAddress,
-    loanRewardAddress,
-  } = await getValidators();
+  const { loanScriptAddress } = await getValidators();
 
   const asset = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
@@ -72,7 +71,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, lender }) => {
 
   const datum = Data.to(offerLoanDatum, OfferLoanDatum);
 
-  const loanDatum: UTxO = {
+  const loanUTxO: UTxO = {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
     outputIndex: 1,
     assets: {
@@ -86,17 +85,11 @@ test<LucidContext>("Can get loan offer", async ({ lucid, lender }) => {
     scriptRef: undefined,
   };
 
+  const collateralUTxOInfo = getCollateralInfoFromLoan([offerLoanDatum]);
+
   const loanConfig: LoanConfig = {
-    loanUTxOs: [loanDatum],
-    collateralUTxOsInfo: [
-      {
-        loanAmount: 100,
-        collateralAmount: 100,
-        interestAmount: 100,
-        loanDuration: 10000000000,
-        lenderPubKeyHash: lenderPubKeyHash as string,
-      },
-    ],
+    loanUTxOs: [loanUTxO],
+    collateralUTxOsInfo: collateralUTxOInfo,
     collateralAsset: {
       policyId: asset.policyId,
       tokenName: asset.tokenName,
@@ -112,10 +105,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, lender }) => {
     total_interest_amount: 100,
     total_loan_amount: 100,
     borrowerPubKeyHash: lenderPubKeyHash as string,
-    loanValidator: loanValidator,
-    loanStakingValidator: loanStakingValidator,
-    collateralScriptAddress: collateralScriptAddress as string,
-    loanStakingValidatorAddress: loanRewardAddress as string,
+    now: emulator.now(),
   };
 
   const tx = await loanTx(lucid, loanConfig);

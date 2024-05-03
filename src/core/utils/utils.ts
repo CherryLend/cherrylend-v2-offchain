@@ -50,8 +50,15 @@ export function quickSubmitBuilder(emulator: Emulator) {
 }
 
 export function getValidityRange(lucid: Lucid, now: number) {
-  const validFromInit = new Date(now).getTime() - 120000;
-  const validToInit = new Date(validFromInit).getTime() + 45 * 60 * 1000; // add 45 minutes (TTL: time to live);
+  let validFromInit;
+  let validToInit;
+  if (process.env.NODE_ENV === "emulator") {
+    validFromInit = new Date(now).getTime();
+    validToInit = new Date(validFromInit).getTime();
+  } else {
+    validFromInit = new Date(now).getTime();
+    validToInit = new Date(validFromInit).getTime() + 45 * 60 * 1000;
+  }
 
   const validFromSlot = lucid.utils.unixTimeToSlot(validFromInit);
   const validToSlot = lucid.utils.unixTimeToSlot(validToInit);

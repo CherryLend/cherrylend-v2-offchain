@@ -6,6 +6,7 @@ import {
   getValidators,
   generateAccountSeedPhrase,
   AssetClassD,
+  InterestConfig,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -29,7 +30,7 @@ test<LucidContext>("Can create interest transaction", async ({
 }) => {
   lucid.selectWalletFromSeed(lender.seedPhrase);
 
-  const { interestValidator, interestValidatorAddress } = await getValidators();
+  const { interestScriptAddress } = await getValidators();
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
@@ -63,17 +64,18 @@ test<LucidContext>("Can create interest transaction", async ({
       a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e:
         100n,
     },
-    address: interestValidatorAddress,
+    address: interestScriptAddress,
     datumHash: undefined,
     datum: datum,
     scriptRef: undefined,
   };
 
-  const tx = await interestTx(lucid, {
+  const interestConfig: InterestConfig = {
     interestUTxOs: [cancelLoanUTxO],
-    interestValidator: interestValidator,
     lenderPubKeyHash: lenderPubKeyHash as string,
-  });
+  };
+
+  const tx = await interestTx(lucid, interestConfig);
 
   expect(tx.type).toBe("success");
 });

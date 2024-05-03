@@ -103,6 +103,20 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   return loanOffersWithDatum;
 }
 
+export async function getAllLoanOffers() {
+  const utxos = await getAllLoanUTxOs();
+
+  const loanOffers = utxos.map((utxo) => {
+    const datum = toOfferLoanDatum(utxo.datum as string);
+    return {
+      loanOfferUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return loanOffers;
+}
+
 export async function getBorrowersCollateral(borrowerPubKeyHash: string) {
   const utxos = await getAllCollateralUTxOs();
 
@@ -147,6 +161,29 @@ export async function getLendersLoanOffers(lenderPubKeyHash: string) {
   });
 
   return lendersLoanOffersInfo;
+}
+
+export async function getLendersCollateral(lenderPubKeyHash: string) {
+  const utxos = await getAllCollateralUTxOs();
+
+  const lendersCollateral = utxos.filter((utxo) => {
+    try {
+      const datum = toCollateralDatum(utxo.datum as string);
+      return datum.lenderPubKeyHash === lenderPubKeyHash;
+    } catch (error) {
+      return false;
+    }
+  });
+
+  const lendersCollateralInfo = lendersCollateral.map((utxo) => {
+    const datum = toCollateralDatum(utxo.datum as string);
+    return {
+      collateralUTxO: utxo,
+      datum: datum,
+    };
+  });
+
+  return lendersCollateralInfo;
 }
 
 export async function getLendersInterestPayment(lenderPubKeyHash: string) {
@@ -206,12 +243,12 @@ export async function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
 export function getCollateralInfoFromLoan(
   loanOfferUtxosDatum: OfferLoanDatum[]
 ) {
-  return loanOfferUtxosDatum.map((utxo) => {
-    const loanAmount = parseInt(utxo.loanAmount.toString());
-    const collateralAmount = parseInt(utxo.collateralAmount.toString());
-    const interestAmount = parseInt(utxo.interestAmount.toString());
-    const loanDuration = parseInt(utxo.loanDuration.toString());
-    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+  return loanOfferUtxosDatum.map((datum) => {
+    const loanAmount = parseInt(datum.loanAmount.toString());
+    const collateralAmount = parseInt(datum.collateralAmount.toString());
+    const interestAmount = parseInt(datum.interestAmount.toString());
+    const loanDuration = parseInt(datum.loanDuration.toString());
+    const lenderPubKeyHash = datum.lenderPubKeyHash;
     return {
       loanAmount: loanAmount,
       collateralAmount: collateralAmount,
@@ -223,12 +260,12 @@ export function getCollateralInfoFromLoan(
 }
 
 export function getInterestInfoFromCollateral(
-  interestUtxosDatum: CollateralDatum[]
+  collateralDatum: CollateralDatum[]
 ) {
-  return interestUtxosDatum.map((utxo) => {
-    const repayLoanAmount = parseInt(utxo.loanAmount.toString());
-    const repayInterestAmount = parseInt(utxo.interestAmount.toString());
-    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+  return collateralDatum.map((datum) => {
+    const repayLoanAmount = parseInt(datum.loanAmount.toString());
+    const repayInterestAmount = parseInt(datum.interestAmount.toString());
+    const lenderPubKeyHash = datum.lenderPubKeyHash;
     return {
       repayLoanAmount: repayLoanAmount,
       repayInterestAmount: repayInterestAmount,

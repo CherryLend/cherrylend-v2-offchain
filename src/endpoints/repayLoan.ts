@@ -4,63 +4,71 @@ import {
   InterestDatum,
   RepayLoanConfig,
   getValidators,
+  getValidityRange,
 } from "../core/index.js";
 
 export async function repayLoanTx(
   lucid: Lucid,
-  interestConfig: RepayLoanConfig
+  repayLoanConfig: RepayLoanConfig
 ) {
   try {
     const {
       interestScriptAddress,
       collateralValidator,
       collateralStakingValidator,
+      collateralRewardAddress,
     } = await getValidators();
 
-    const loanUnit = interestConfig.loanAsset.policyId
+    const loanUnit = repayLoanConfig.loanAsset.policyId
       ? toUnit(
-          interestConfig.loanAsset.policyId,
-          interestConfig.loanAsset.tokenName
+          repayLoanConfig.loanAsset.policyId,
+          repayLoanConfig.loanAsset.tokenName
         )
       : "lovelace";
 
-    const interestUnit = interestConfig.interestAsset.policyId
+    const interestUnit = repayLoanConfig.interestAsset.policyId
       ? toUnit(
-          interestConfig.interestAsset.policyId,
-          interestConfig.interestAsset.tokenName
+          repayLoanConfig.interestAsset.policyId,
+          repayLoanConfig.interestAsset.tokenName
         )
       : "lovelace";
 
     const interestAsset: AssetClassD = {
-      policyId: interestConfig.interestAsset.policyId,
-      tokenName: interestConfig.interestAsset.tokenName,
+      policyId: repayLoanConfig.interestAsset.policyId,
+      tokenName: repayLoanConfig.interestAsset.tokenName,
     };
 
     const loanAsset: AssetClassD = {
-      policyId: interestConfig.loanAsset.policyId,
-      tokenName: interestConfig.loanAsset.tokenName,
+      policyId: repayLoanConfig.loanAsset.policyId,
+      tokenName: repayLoanConfig.loanAsset.tokenName,
     };
 
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
     );
 
-    const tx = lucid.newTx();
-    tx.collectFrom(interestConfig.collateralUTxOs, redeemer)
-      .attachSpendingValidator(collateralValidator)
-      .attachWithdrawalValidator(collateralStakingValidator);
+    const { validFrom, validTo } = getValidityRange(lucid, repayLoanConfig.now);
 
-    for (let i = 0; i < interestConfig.interestUTxOsInfo.length; i++) {
+    const tx = lucid.newTx();
+    tx.collectFrom(repayLoanConfig.collateralUTxOs, redeemer)
+      .attachSpendingValidator(collateralValidator)
+      .withdraw(collateralRewardAddress, 0n, Data.to(1n))
+      .attachWithdrawalValidator(collateralStakingValidator)
+      .validFrom(validFrom)
+      .validTo(validTo)
+      .addSignerKey(repayLoanConfig.borrowerPubKeyHash);
+
+    for (let i = 0; i < repayLoanConfig.interestUTxOsInfo.length; i++) {
       const interestDatum: InterestDatum = {
         repayLoanAmount: BigInt(
-          interestConfig.interestUTxOsInfo[i].repayLoanAmount
+          repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount
         ),
         repayLoanAsset: loanAsset,
         repayInterestAmount: BigInt(
-          interestConfig.interestUTxOsInfo[i].repayInterestAmount
+          repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
         ),
         repayInterestAsset: interestAsset,
-        lenderPubKeyHash: interestConfig.interestUTxOsInfo[i].lenderPubKeyHash,
+        lenderPubKeyHash: repayLoanConfig.interestUTxOsInfo[i].lenderPubKeyHash,
       };
 
       tx.payToContract(
@@ -68,10 +76,10 @@ export async function repayLoanTx(
         { inline: Data.to(interestDatum, InterestDatum) },
         {
           [loanUnit]: BigInt(
-            interestConfig.interestUTxOsInfo[i].repayLoanAmount
+            repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount
           ),
           [interestUnit]: BigInt(
-            interestConfig.interestUTxOsInfo[i].repayInterestAmount
+            repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
           ),
         }
       );
@@ -84,6 +92,7 @@ export async function repayLoanTx(
       tx: completedTx,
     };
   } catch (error) {
+    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
