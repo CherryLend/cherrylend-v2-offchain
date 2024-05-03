@@ -128,9 +128,10 @@ The endpoint `repayLoanTx` takes in lucid and `RepayLoanConfig` as its params.
 export type RepayLoanConfig = {
   loanAsset: AssetClass;
   interestAsset: AssetClass;
-  borrowerPubKeyAddress: string;
   collateralUTxOs: UTxO[];
   interestUTxOsInfo: InterestUTxOsInfo[];
+  now: POSIXTime;
+  borrowerPubKeyHash: string;
 };
 ```
 
@@ -141,12 +142,6 @@ async function getBorrowersCollateral(borrowerPubKeyHash: string){
 ...
 
 }
-export type SelectLoanConfig = {
-  loanAmount: number;
-  loanAsset: AssetClass;
-  collateralAsset: AssetClass;
-  apr: number;
-};
 
 // It returns
 [
