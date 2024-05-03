@@ -206,12 +206,12 @@ export async function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
 export function getCollateralInfoFromLoan(
   loanOfferUtxosDatum: OfferLoanDatum[]
 ) {
-  return loanOfferUtxosDatum.map((utxo) => {
-    const loanAmount = parseInt(utxo.loanAmount.toString());
-    const collateralAmount = parseInt(utxo.collateralAmount.toString());
-    const interestAmount = parseInt(utxo.interestAmount.toString());
-    const loanDuration = parseInt(utxo.loanDuration.toString());
-    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+  return loanOfferUtxosDatum.map((datum) => {
+    const loanAmount = parseInt(datum.loanAmount.toString());
+    const collateralAmount = parseInt(datum.collateralAmount.toString());
+    const interestAmount = parseInt(datum.interestAmount.toString());
+    const loanDuration = parseInt(datum.loanDuration.toString());
+    const lenderPubKeyHash = datum.lenderPubKeyHash;
     return {
       loanAmount: loanAmount,
       collateralAmount: collateralAmount,
@@ -223,12 +223,12 @@ export function getCollateralInfoFromLoan(
 }
 
 export function getInterestInfoFromCollateral(
-  interestUtxosDatum: CollateralDatum[]
+  collateralDatum: CollateralDatum[]
 ) {
-  return interestUtxosDatum.map((utxo) => {
-    const repayLoanAmount = parseInt(utxo.loanAmount.toString());
-    const repayInterestAmount = parseInt(utxo.interestAmount.toString());
-    const lenderPubKeyHash = utxo.lenderPubKeyHash;
+  return collateralDatum.map((datum) => {
+    const repayLoanAmount = parseInt(datum.loanAmount.toString());
+    const repayInterestAmount = parseInt(datum.interestAmount.toString());
+    const lenderPubKeyHash = datum.lenderPubKeyHash;
     return {
       repayLoanAmount: repayLoanAmount,
       repayInterestAmount: repayInterestAmount,

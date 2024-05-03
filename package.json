@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "vitest run",
+    "test": "export NODE_ENV='emulator' && vitest run",
     "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean"
   },
   "dependencies": {

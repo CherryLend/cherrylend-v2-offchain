@@ -4,6 +4,7 @@ import { generateAccountSeedPhrase } from "../src/core/utils/utils.ts";
 import { cancelLoanTx } from "../src/endpoints/cancelLoan.ts";
 import { getValidators } from "../src/core/utils/scripts.ts";
 import { AssetClassD, OfferLoanDatum } from "../src/core/contract.types.ts";
+import { CancelLoanConfig } from "../src/index.ts";
 
 type LucidContext = {
   lucid: Lucid;
@@ -23,7 +24,7 @@ beforeEach<LucidContext>(async (context) => {
 test<LucidContext>("Can cancel loan offer", async ({ lucid, lender }) => {
   lucid.selectWalletFromSeed(lender.seedPhrase);
 
-  const { loanValidator, loanScriptAddress } = await getValidators();
+  const { loanScriptAddress } = await getValidators();
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
@@ -71,11 +72,12 @@ test<LucidContext>("Can cancel loan offer", async ({ lucid, lender }) => {
     scriptRef: undefined,
   };
 
-  const tx = await cancelLoanTx(lucid, {
+  const cancelLoanConfig: CancelLoanConfig = {
     loanUTxOs: [cancelLoanUTxO],
-    loanValidator: loanValidator,
     lenderPubKeyHash: lenderPubKeyHash as string,
-  });
+  };
+
+  const tx = await cancelLoanTx(lucid, cancelLoanConfig);
 
   expect(tx.type).toBe("success");
 });
