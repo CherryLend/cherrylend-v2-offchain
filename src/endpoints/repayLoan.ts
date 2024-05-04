@@ -33,6 +33,8 @@ export async function repayLoanTx(
         )
       : "lovelace";
 
+    console.log("loanUnit", interestUnit);
+
     const interestAsset: AssetClassD = {
       policyId: repayLoanConfig.interestAsset.policyId,
       tokenName: repayLoanConfig.interestAsset.tokenName,
@@ -71,18 +73,31 @@ export async function repayLoanTx(
         lenderPubKeyHash: repayLoanConfig.interestUTxOsInfo[i].lenderPubKeyHash,
       };
 
-      tx.payToContract(
-        interestScriptAddress,
-        { inline: Data.to(interestDatum, InterestDatum) },
-        {
-          [loanUnit]: BigInt(
-            repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount
-          ),
-          [interestUnit]: BigInt(
-            repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
-          ),
-        }
-      );
+      if (loanUnit === interestUnit) {
+        tx.payToContract(
+          interestScriptAddress,
+          { inline: Data.to(interestDatum, InterestDatum) },
+          {
+            [loanUnit]: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
+                repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+            ),
+          }
+        );
+      } else {
+        tx.payToContract(
+          interestScriptAddress,
+          { inline: Data.to(interestDatum, InterestDatum) },
+          {
+            [loanUnit]: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount
+            ),
+            [interestUnit]: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+            ),
+          }
+        );
+      }
     }
 
     const completedTx = await tx.complete();
@@ -92,7 +107,6 @@ export async function repayLoanTx(
       tx: completedTx,
     };
   } catch (error) {
-    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
