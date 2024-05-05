@@ -4,9 +4,10 @@ import {
   InterestDatum,
   OfferLoanDatum,
 } from "../contract.types.js";
-import { SelectLoanConfig } from "../global.types.js";
+import { CollateralUTxOsInfo, SelectLoanConfig } from "../global.types.js";
 import { getValidators } from "./scripts.js";
 import { getLucid } from "./utils.js";
+import { minLovelaceAmount } from "../constants.js";
 
 function weightedShuffle(items: UTxO[], weights: number[]) {
   if (items.length !== weights.length) {
@@ -240,23 +241,50 @@ export async function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
   return lendersUTXoSInfo;
 }
 
+// Fold the loans into a UTxOs that contains unique lenders.
 export function getCollateralInfoFromLoan(
   loanOfferUtxosDatum: OfferLoanDatum[]
 ) {
-  return loanOfferUtxosDatum.map((datum) => {
-    const loanAmount = parseInt(datum.loanAmount.toString());
-    const collateralAmount = parseInt(datum.collateralAmount.toString());
-    const interestAmount = parseInt(datum.interestAmount.toString());
-    const loanDuration = parseInt(datum.loanDuration.toString());
-    const lenderPubKeyHash = datum.lenderPubKeyHash;
-    return {
-      loanAmount: loanAmount,
-      collateralAmount: collateralAmount,
-      interestAmount: interestAmount,
-      loanDuration: loanDuration,
-      lenderPubKeyHash: lenderPubKeyHash,
-    };
-  });
+  return loanOfferUtxosDatum.reduce(
+    (collateralInfo: CollateralUTxOsInfo[], datum) => {
+      const loanAmount = parseInt(datum.loanAmount.toString());
+      const collateralAmount = parseInt(datum.collateralAmount.toString());
+      const interestAmount = parseInt(datum.interestAmount.toString());
+      const loanDuration = parseInt(datum.loanDuration.toString());
+      const lenderPubKeyHash = datum.lenderPubKeyHash;
+
+      const lenderAlreadyExists = collateralInfo.find(
+        (info) => info.lenderPubKeyHash === lenderPubKeyHash
+      );
+
+      let lovelaceAmount = 0;
+
+      if (datum.loanAsset.policyId === "" && datum.loanAsset.tokenName === "") {
+        lovelaceAmount = loanAmount;
+      } else {
+        lovelaceAmount = minLovelaceAmount;
+      }
+
+      if (lenderAlreadyExists) {
+        lenderAlreadyExists.loanAmount += loanAmount;
+        lenderAlreadyExists.collateralAmount += collateralAmount;
+        lenderAlreadyExists.interestAmount += interestAmount;
+        lenderAlreadyExists.lovelaceAmount += lovelaceAmount;
+      } else {
+        collateralInfo.push({
+          loanAmount: loanAmount,
+          collateralAmount: collateralAmount,
+          interestAmount: interestAmount,
+          loanDuration: loanDuration,
+          lenderPubKeyHash: lenderPubKeyHash,
+          lovelaceAmount: lovelaceAmount,
+        });
+      }
+
+      return collateralInfo;
+    },
+    []
+  );
 }
 
 export function getInterestInfoFromCollateral(
@@ -319,7 +347,28 @@ async function getAllLoanUTxOs() {
   const { loanScriptAddress } = await getValidators();
 
   const scriptUtxos = await lucid.utxosAt(loanScriptAddress);
-  return scriptUtxos;
+  const availableOffers = scriptUtxos.filter((utxo) => {
+    try {
+      const datum = Data.castFrom(
+        Data.from(utxo.datum as string),
+        OfferLoanDatum
+      );
+      const lovelaceLoan =
+        datum.loanAsset.policyId === "" && datum.loanAsset.tokenName === "";
+
+      // Make sure if the loan is an native asset loan, it contains the minlovelaceAmount
+      if (lovelaceLoan) {
+        return true;
+      } else if (utxo.assets.lovelace === BigInt(minLovelaceAmount)) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
+  });
+  return availableOffers;
 }
 
 async function getAllInterestUTxOs() {
