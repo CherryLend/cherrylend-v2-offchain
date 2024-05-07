@@ -19,6 +19,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
     const loanUnit = loanConfig.loanAsset.policyId
       ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.tokenName)
       : "lovelace";
+    const lovelace = "lovelace";
 
     const collateralAsset: AssetClassD = {
       policyId: loanConfig.collateralAsset.policyId,
@@ -67,15 +68,29 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         borrowerPubKeyHash: loanConfig.borrowerPubKeyHash,
       };
 
-      tx.payToContract(
-        collateralScriptAddress,
-        { inline: Data.to(collateralDatum, CollateralDatum) },
-        {
-          [loanUnit]: BigInt(
-            loanConfig.collateralUTxOsInfo[i].collateralAmount
-          ),
-        }
-      );
+      // If it is a native asset loan, make sure the collateral contains the amount of ADA that the lender send when we split it
+      if (loanUnit === "lovelace") {
+        tx.payToContract(
+          collateralScriptAddress,
+          { inline: Data.to(collateralDatum, CollateralDatum) },
+          {
+            [loanUnit]: BigInt(loanConfig.collateralUTxOsInfo[i].loanAmount),
+          }
+        );
+      } else {
+        tx.payToContract(
+          collateralScriptAddress,
+          { inline: Data.to(collateralDatum, CollateralDatum) },
+          {
+            [loanUnit]: BigInt(
+              loanConfig.collateralUTxOsInfo[i].collateralAmount
+            ),
+            [lovelace]: BigInt(
+              loanConfig.collateralUTxOsInfo[i].lovelaceAmount
+            ),
+          }
+        );
+      }
     }
 
     const completedTx = await tx.complete();

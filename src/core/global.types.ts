@@ -21,12 +21,13 @@ export type OfferLoanConfig = {
   amountInEachUTxO: number;
 };
 
-type CollateralUTxOsInfo = {
+export type CollateralUTxOsInfo = {
   loanAmount: number;
   collateralAmount: number;
   interestAmount: number;
   loanDuration: POSIXTime;
   lenderPubKeyHash: string;
+  lovelaceAmount: number;
 };
 
 export type LoanConfig = {

@@ -5,6 +5,7 @@ import {
   OfferLoanDatum,
   getValidators,
   splitLoanAmount,
+  minLovelaceAmount,
 } from "../core/index.js";
 
 export async function offerLoanTx(
@@ -56,13 +57,24 @@ export async function offerLoanTx(
         lenderPubKeyHash: offerLoanConfig.lenderPubKeyHash,
       };
 
-      tx.payToContract(
-        loanScriptAddress,
-        { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
-        {
-          [loanUnit]: BigInt(loanUTXoSAmount[i]),
-        }
-      );
+      if (loanUnit === "lovelace") {
+        tx.payToContract(
+          loanScriptAddress,
+          { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
+          {
+            [loanUnit]: BigInt(loanUTXoSAmount[i]),
+          }
+        );
+      } else {
+        tx.payToContract(
+          loanScriptAddress,
+          { inline: Data.to(offerLoanDatum, OfferLoanDatum) },
+          {
+            [loanUnit]: BigInt(loanUTXoSAmount[i]),
+            lovelace: BigInt(minLovelaceAmount),
+          }
+        );
+      }
     }
 
     const completedTx = await tx.complete();

@@ -5,7 +5,7 @@ import {
   LiquidateCollateralConfig,
 } from "../core/index.js";
 
-export async function liquidateCollateralTx(
+export async function liquidateLoanTx(
   lucid: Lucid,
   liquidateCollateral: LiquidateCollateralConfig
 ) {

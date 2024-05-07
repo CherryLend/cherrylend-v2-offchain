@@ -33,8 +33,6 @@ export async function repayLoanTx(
         )
       : "lovelace";
 
-    console.log("loanUnit", interestUnit);
-
     const interestAsset: AssetClassD = {
       policyId: repayLoanConfig.interestAsset.policyId,
       tokenName: repayLoanConfig.interestAsset.tokenName,
