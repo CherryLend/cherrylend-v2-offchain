@@ -1,4 +1,4 @@
-import { Data, Constr, Lucid } from "lucid-cardano";
+import { Data, Constr, Lucid, fromText } from "lucid-cardano";
 import {
   getValidators,
   getValidityRange,
@@ -35,7 +35,6 @@ export async function liquidateLoanTx(
       tx: completedTx,
     };
   } catch (error) {
-    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };

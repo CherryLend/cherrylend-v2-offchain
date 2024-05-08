@@ -75,6 +75,13 @@ export type LiquidateCollateralConfig = {
   now: POSIXTime;
 };
 
+export type LiquidateLoanOracleConfig = {
+  lenderPubKeyHash: string;
+  collateralUTxOs: UTxO[];
+  now: POSIXTime;
+  oracleScript: Address;
+};
+
 export type SelectLoanConfig = {
   loanAmount: number;
   loanAsset: AssetClass;

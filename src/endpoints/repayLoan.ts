@@ -105,7 +105,6 @@ export async function repayLoanTx(
       tx: completedTx,
     };
   } catch (error) {
-    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
