@@ -44,6 +44,7 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, lender }) => {
     lenderPubKeyHash: lenderPubKeyHash as string,
     totalLoanAmount: 300,
     amountInEachUTxO: 100,
+    liquidationPolicy: "",
   });
 
   expect(tx.type).toBe("success");

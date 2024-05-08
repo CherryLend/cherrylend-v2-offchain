@@ -19,6 +19,7 @@ export type OfferLoanConfig = {
   loanDuration: POSIXTime;
   totalLoanAmount: number;
   amountInEachUTxO: number;
+  liquidationPolicy: string;
 };
 
 export type CollateralUTxOsInfo = {
@@ -40,6 +41,7 @@ export type LoanConfig = {
   borrowerPubKeyHash: string;
   collateralUTxOsInfo: CollateralUTxOsInfo[];
   now: POSIXTime;
+  liquidationPolicy: string;
 };
 
 type InterestUTxOsInfo = {

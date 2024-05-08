@@ -13,7 +13,7 @@ export async function liquidateLoanTx(
     const { collateralValidator } = await getValidators();
 
     const redeemer = Data.to(
-      new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
+      new Constr(1, [new Constr(0, [new Constr(0, [""])])])
     );
 
     const { validFrom, validTo } = getValidityRange(
@@ -35,6 +35,7 @@ export async function liquidateLoanTx(
       tx: completedTx,
     };
   } catch (error) {
+    console.log(error);
     if (error instanceof Error) return { type: "error", error: error };
 
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
