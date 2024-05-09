@@ -2,7 +2,7 @@ import { Lucid, Data, toUnit, Constr, fromText } from "lucid-cardano";
 import { LiquidateLoanOracleConfig } from "../core/global.types.js";
 import { bytesToScript, getValidators, getValidityRange } from "../index.js";
 
-export async function liquidateLoanOracle(
+export async function liquidateLoanOracleTx(
   lucid: Lucid,
   liquidateLoanOracleConfig: LiquidateLoanOracleConfig
 ) {

@@ -87,7 +87,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
 
   const interestUTxOsInfo = getInterestInfoFromCollateral([collateralDatum]);
 
-  const loanConfig: RepayLoanConfig = {
+  const repayLoanConfig: RepayLoanConfig = {
     interestAsset: {
       policyId: "",
       tokenName: "",
@@ -102,7 +102,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     borrowerPubKeyHash: lenderPubKeyHash as string,
   };
 
-  const tx = await repayLoanTx(lucid, loanConfig);
+  const tx = await repayLoanTx(lucid, repayLoanConfig);
 
   expect(tx.type).toBe("success");
 });

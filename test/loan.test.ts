@@ -13,25 +13,21 @@ import {
 
 type LucidContext = {
   lucid: Lucid;
-  lender: any;
+  users: any;
   emulator: Emulator;
 };
 
 beforeEach<LucidContext>(async (context) => {
-  const lender = await generateAccountSeedPhrase({
+  const users = await generateAccountSeedPhrase({
     lovelace: BigInt(100_000_000),
   });
-  context.lender = lender;
-  context.emulator = new Emulator([lender]);
+  context.users = users;
+  context.emulator = new Emulator([users]);
   context.lucid = await Lucid.new(context.emulator);
 });
 
-test<LucidContext>("Can get loan offer", async ({
-  lucid,
-  lender,
-  emulator,
-}) => {
-  lucid.selectWalletFromSeed(lender.seedPhrase);
+test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
+  lucid.selectWalletFromSeed(users.seedPhrase);
 
   const { loanScriptAddress } = await getValidators();
 

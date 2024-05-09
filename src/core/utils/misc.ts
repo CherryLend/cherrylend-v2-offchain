@@ -1,4 +1,4 @@
-import { Data, UTxO } from "lucid-cardano";
+import { Data, Lucid, UTxO } from "lucid-cardano";
 import {
   CollateralDatum,
   InterestDatum,
@@ -6,7 +6,6 @@ import {
 } from "../contract.types.js";
 import { CollateralUTxOsInfo, SelectLoanConfig } from "../global.types.js";
 import { getValidators } from "./scripts.js";
-import { getLucid } from "./utils.js";
 import { minLovelaceAmount } from "../constants.js";
 
 function weightedShuffle(items: UTxO[], weights: number[]) {
@@ -48,8 +47,11 @@ function weightedShuffle(items: UTxO[], weights: number[]) {
   return shuffledItems;
 }
 
-export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
-  const utxos = await getAllLoanUTxOs();
+export async function selectLoanOffers(
+  selectLoanConfig: SelectLoanConfig,
+  lucid: Lucid
+) {
+  const utxos = await getAllLoanUTxOs(lucid);
 
   // Get all offers that match the loan amount, loan asset, collateral asset, and APR
   const availableOffers = utxos.filter((utxo) => {
@@ -60,11 +62,17 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
       );
       const interestAmount =
         (parseInt(datum.loanAmount.toString()) * selectLoanConfig.apr) / 100;
+
       if (
-        datum.loanAsset === selectLoanConfig.loanAsset &&
-        datum.collateralAsset === selectLoanConfig.collateralAsset &&
+        datum.loanAsset.policyId === selectLoanConfig.loanAsset.policyId &&
+        datum.loanAsset.tokenName === selectLoanConfig.loanAsset.tokenName &&
+        datum.collateralAsset.policyId ===
+          selectLoanConfig.collateralAsset.policyId &&
+        datum.collateralAsset.tokenName ===
+          selectLoanConfig.collateralAsset.tokenName &&
         datum.interestAmount === BigInt(interestAmount) &&
-        datum.interestAsset === selectLoanConfig.loanAsset
+        datum.interestAsset.policyId === selectLoanConfig.loanAsset.policyId &&
+        datum.interestAsset.tokenName === selectLoanConfig.loanAsset.tokenName
       ) {
         return true;
       }
@@ -72,6 +80,12 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
       return false;
     }
   });
+
+  if (availableOffers.length === 0) {
+    throw new Error(
+      "No available offers that match the loan amount, loan asset, collateral asset, and APR"
+    );
+  }
 
   // Using a decay factor so as the index increases, the weight of the UTxO decreases exponentially.
   // But the weight won't have as much of a spread as we go towards the end of the array
@@ -89,7 +103,7 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   for (let i = 0; i < orderedShuffle.length; i++) {
     const offer = orderedShuffle[i];
 
-    const datum = Data.castFrom(offer.datum as string, OfferLoanDatum);
+    const datum = toOfferLoanDatum(offer.datum as string);
 
     const loanAmount = parseInt(datum.loanAmount.toString());
     if (totalLoanAmount - loanAmount >= 0) {
@@ -104,8 +118,8 @@ export async function selectLoanOffers(selectLoanConfig: SelectLoanConfig) {
   return loanOffersWithDatum;
 }
 
-export async function getAllLoanOffers() {
-  const utxos = await getAllLoanUTxOs();
+export async function getAllLoanOffers(lucid: Lucid) {
+  const utxos = await getAllLoanUTxOs(lucid);
 
   const loanOffers = utxos.map((utxo) => {
     const datum = toOfferLoanDatum(utxo.datum as string);
@@ -118,8 +132,11 @@ export async function getAllLoanOffers() {
   return loanOffers;
 }
 
-export async function getBorrowersCollateral(borrowerPubKeyHash: string) {
-  const utxos = await getAllCollateralUTxOs();
+export async function getBorrowersCollateral(
+  borrowerPubKeyHash: string,
+  lucid: Lucid
+) {
+  const utxos = await getAllCollateralUTxOs(lucid);
 
   const collateralUTxOs = utxos.filter((utxo) => {
     try {
@@ -141,8 +158,11 @@ export async function getBorrowersCollateral(borrowerPubKeyHash: string) {
   return collateralUTxOsInfo;
 }
 
-export async function getLendersLoanOffers(lenderPubKeyHash: string) {
-  const utxos = await getAllLoanUTxOs();
+export async function getLendersLoanOffers(
+  lenderPubKeyHash: string,
+  lucid: Lucid
+) {
+  const utxos = await getAllLoanUTxOs(lucid);
 
   const lendersLoanOffers = utxos.filter((utxo) => {
     try {
@@ -164,8 +184,11 @@ export async function getLendersLoanOffers(lenderPubKeyHash: string) {
   return lendersLoanOffersInfo;
 }
 
-export async function getLendersCollateral(lenderPubKeyHash: string) {
-  const utxos = await getAllCollateralUTxOs();
+export async function getLendersCollateral(
+  lenderPubKeyHash: string,
+  lucid: Lucid
+) {
+  const utxos = await getAllCollateralUTxOs(lucid);
 
   const lendersCollateral = utxos.filter((utxo) => {
     try {
@@ -187,8 +210,11 @@ export async function getLendersCollateral(lenderPubKeyHash: string) {
   return lendersCollateralInfo;
 }
 
-export async function getLendersInterestPayment(lenderPubKeyHash: string) {
-  const utxos = await getAllInterestUTxOs();
+export async function getLendersInterestPayment(
+  lenderPubKeyHash: string,
+  lucid: Lucid
+) {
+  const utxos = await getAllInterestUTxOs(lucid);
 
   const lendersInterestPayment = utxos.filter((utxo) => {
     try {
@@ -202,7 +228,7 @@ export async function getLendersInterestPayment(lenderPubKeyHash: string) {
   const lendersInterestPaymentInfo = lendersInterestPayment.map((utxo) => {
     const datum = toInterestDatum(utxo.datum as string);
     return {
-      interestPaymentUTxO: utxo,
+      interestUTxO: utxo,
       datum: datum,
     };
   });
@@ -210,20 +236,23 @@ export async function getLendersInterestPayment(lenderPubKeyHash: string) {
   return lendersInterestPaymentInfo;
 }
 
-export async function getLendersLiquidateCollateral(lenderPubKeyHash: string) {
-  const utxos = await getAllCollateralUTxOs();
+export async function getLendersLiquidateCollateral(
+  lenderPubKeyHash: string,
+  lucid: Lucid,
+  now: number
+) {
+  const utxos = await getAllCollateralUTxOs(lucid);
 
   const lendersUTXoS = utxos.filter((utxo) => {
     try {
       const datum = toCollateralDatum(utxo.datum as string);
-      const currentPosixTime = Math.floor(Date.now() / 1000);
       const lendTime = parseInt(datum.lendTime.toString());
       const loanDuration = parseInt(datum.loanDuration.toString());
 
       // Check if the loan has expired and the lender can liquidate the collateral
       return (
         datum.lenderPubKeyHash === lenderPubKeyHash &&
-        currentPosixTime > lendTime + loanDuration
+        now > lendTime + loanDuration
       );
     } catch (error) {
       return false;
@@ -322,28 +351,26 @@ export function splitLoanAmount(amountInEachUTx0: number, amount: number) {
   return splitAmounts;
 }
 
-function toCollateralDatum(datum: string) {
+export function toCollateralDatum(datum: string) {
   return Data.castFrom(Data.from(datum), CollateralDatum);
 }
 
-function toOfferLoanDatum(datum: string) {
+export function toOfferLoanDatum(datum: string) {
   return Data.castFrom(Data.from(datum), OfferLoanDatum);
 }
 
-function toInterestDatum(datum: string) {
+export function toInterestDatum(datum: string) {
   return Data.castFrom(Data.from(datum), InterestDatum);
 }
 
-async function getAllCollateralUTxOs() {
-  const lucid = await getLucid();
+async function getAllCollateralUTxOs(lucid: Lucid) {
   const { collateralScriptAddress } = await getValidators();
 
   const scriptUtxos = await lucid.utxosAt(collateralScriptAddress);
   return scriptUtxos;
 }
 
-async function getAllLoanUTxOs() {
-  const lucid = await getLucid();
+async function getAllLoanUTxOs(lucid: Lucid) {
   const { loanScriptAddress } = await getValidators();
 
   const scriptUtxos = await lucid.utxosAt(loanScriptAddress);
@@ -371,8 +398,7 @@ async function getAllLoanUTxOs() {
   return availableOffers;
 }
 
-async function getAllInterestUTxOs() {
-  const lucid = await getLucid();
+async function getAllInterestUTxOs(lucid: Lucid) {
   const { interestScriptAddress } = await getValidators();
 
   const scriptUtxos = await lucid.utxosAt(interestScriptAddress);

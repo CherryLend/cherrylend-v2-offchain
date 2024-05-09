@@ -64,7 +64,7 @@ test<LucidContext>("Can create get interest transaction", async ({
 
   const datum = Data.to(interestDatum, InterestDatum);
 
-  const cancelLoanUTxO: UTxO = {
+  const interestUTxO: UTxO = {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
     outputIndex: 1,
     assets: {
@@ -79,7 +79,7 @@ test<LucidContext>("Can create get interest transaction", async ({
   };
 
   const interestConfig: InterestConfig = {
-    interestUTxOs: [cancelLoanUTxO],
+    interestUTxOs: [interestUTxO],
     lenderPubKeyHash: lenderPubKeyHash as string,
   };
 

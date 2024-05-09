@@ -1,7 +1,7 @@
 import { expect, test, beforeEach } from "vitest";
 import { Data, Emulator, Lucid, UTxO } from "lucid-cardano";
 import {
-  liquidateLoanOracle,
+  liquidateLoanOracleTx,
   getValidators,
   generateAccountSeedPhrase,
   CollateralDatum,
@@ -106,7 +106,7 @@ test<LucidContext>("Can liquidate loan transaction if undercollateraized", async
 
   const datum = Data.to(collateralDatum, CollateralDatum);
 
-  const cancelLoanUTxO: UTxO = {
+  const collateralUTxO: UTxO = {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
     outputIndex: 1,
     assets: {
@@ -121,13 +121,13 @@ test<LucidContext>("Can liquidate loan transaction if undercollateraized", async
   };
 
   const liquidateCollateralConfig: LiquidateLoanOracleConfig = {
-    collateralUTxOs: [cancelLoanUTxO],
+    collateralUTxOs: [collateralUTxO],
     lenderPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     oracleScript: oracleScript,
   };
 
-  const tx = await liquidateLoanOracle(lucid, liquidateCollateralConfig);
+  const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);
 
   expect(tx.type).toBe("success");
 
