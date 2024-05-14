@@ -1,4 +1,4 @@
-import { Data, Constr, Lucid } from "lucid-cardano";
+import { Data, Constr, Lucid, fromText } from "lucid-cardano";
 import {
   getValidators,
   getValidityRange,
@@ -13,7 +13,7 @@ export async function liquidateLoanTx(
     const { collateralValidator } = await getValidators();
 
     const redeemer = Data.to(
-      new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
+      new Constr(1, [new Constr(0, [new Constr(0, [""])])])
     );
 
     const { validFrom, validTo } = getValidityRange(

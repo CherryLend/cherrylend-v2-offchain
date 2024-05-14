@@ -16,6 +16,7 @@ export const OfferLoanDatumSchema = Data.Object({
   interestAsset: AssetClassSchema,
   loanDuration: Data.Integer(),
   lenderPubKeyHash: Data.Bytes(),
+  liquidationPolicy: Data.Bytes(),
 });
 export type OfferLoanDatum = Data.Static<typeof OfferLoanDatumSchema>;
 export const OfferLoanDatum = OfferLoanDatumSchema as unknown as OfferLoanDatum;
@@ -32,6 +33,7 @@ export const CollateralDatumSchema = Data.Object({
   totalInterestAmount: Data.Integer(),
   totalLoanAmount: Data.Integer(),
   borrowerPubKeyHash: Data.Bytes(),
+  liquidationPolicy: Data.Bytes(),
 });
 export type CollateralDatum = Data.Static<typeof CollateralDatumSchema>;
 export const CollateralDatum =

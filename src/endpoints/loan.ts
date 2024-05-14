@@ -66,6 +66,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         totalInterestAmount: BigInt(loanConfig.total_interest_amount),
         totalLoanAmount: BigInt(loanConfig.total_loan_amount),
         borrowerPubKeyHash: loanConfig.borrowerPubKeyHash,
+        liquidationPolicy: loanConfig.liquidationPolicy,
       };
 
       // If it is a native asset loan, make sure the collateral contains the amount of ADA that the lender send when we split it

@@ -1,18 +1,22 @@
 import { expect, test, beforeEach } from "vitest";
 import { Data, Emulator, Lucid, UTxO } from "lucid-cardano";
 import {
-  liquidateLoanTx,
+  liquidateLoanOracleTx,
   getValidators,
   generateAccountSeedPhrase,
   CollateralDatum,
   AssetClassD,
-  LiquidateCollateralConfig,
+  buildMultisigScript,
+  LiquidateLoanOracleConfig,
+  bytesToScript,
 } from "../src/index.ts";
 
 type LucidContext = {
   lucid: Lucid;
   users: any;
   emulator: Emulator;
+  oracles: any[];
+  oracleScript: string;
 };
 
 beforeEach<LucidContext>(async (context) => {
@@ -22,12 +26,43 @@ beforeEach<LucidContext>(async (context) => {
 
   context.emulator = new Emulator([context.users]);
   context.lucid = await Lucid.new(context.emulator);
+
+  context.oracles = [
+    await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+    await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+    await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+    await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+    await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+  ];
+
+  const oraclesPubKeyHashes = context.oracles.flatMap((account) => {
+    const hash = context.lucid.utils.getAddressDetails(account.address)
+      .paymentCredential?.hash;
+    if (!hash) return [];
+    return [hash];
+  });
+
+  const { script: oracle } = buildMultisigScript(oraclesPubKeyHashes, 3);
+
+  context.oracleScript = oracle;
 });
 
-test<LucidContext>("Can liquidate loan transaction if deadline passed and lender signed transaction", async ({
+test<LucidContext>("Can liquidate loan transaction if undercollateraized", async ({
   lucid,
   users,
   emulator,
+  oracles,
+  oracleScript,
 }) => {
   lucid.selectWalletFromSeed(users.seedPhrase);
 
@@ -58,13 +93,15 @@ test<LucidContext>("Can liquidate loan transaction if deadline passed and lender
     collateralAsset: collateralAsset,
     interestAmount: BigInt(100),
     interestAsset: interestAsset,
-    loanDuration: BigInt(10),
+    loanDuration: BigInt(1000000000000),
     lendTime: BigInt(emulator.now() - 100_000),
     lenderPubKeyHash: lenderPubKeyHash as string,
     totalInterestAmount: BigInt(100),
     totalLoanAmount: BigInt(100),
     borrowerPubKeyHash: lenderPubKeyHash as string,
-    liquidationPolicy: "",
+    liquidationPolicy: lucid.utils.mintingPolicyToId(
+      bytesToScript(oracleScript, "Native")
+    ),
   };
 
   const datum = Data.to(collateralDatum, CollateralDatum);
@@ -83,13 +120,45 @@ test<LucidContext>("Can liquidate loan transaction if deadline passed and lender
     scriptRef: undefined,
   };
 
-  const liquidateCollateralConfig: LiquidateCollateralConfig = {
+  const liquidateCollateralConfig: LiquidateLoanOracleConfig = {
     collateralUTxOs: [collateralUTxO],
     lenderPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
+    oracleScript: oracleScript,
   };
 
-  const tx = await liquidateLoanTx(lucid, liquidateCollateralConfig);
+  const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);
 
   expect(tx.type).toBe("success");
+
+  const liquidationCBORHex = tx.data?.toString();
+
+  const userSign = await lucid
+    .fromTx(liquidationCBORHex as string)
+    .partialSign();
+
+  lucid.selectWalletFromSeed(oracles[0].seedPhrase);
+  const partialSignOracle0 = await lucid
+    .fromTx(liquidationCBORHex as string)
+    .partialSign();
+
+  lucid.selectWalletFromSeed(oracles[1].seedPhrase);
+  const partialSignOracle1 = await lucid
+    .fromTx(liquidationCBORHex as string)
+    .partialSign();
+
+  lucid.selectWalletFromSeed(oracles[2].seedPhrase);
+  const partialSignOracle2 = await lucid
+    .fromTx(liquidationCBORHex as string)
+    .partialSign();
+
+  await lucid
+    .fromTx(liquidationCBORHex as string)
+    .assemble([
+      userSign,
+      partialSignOracle0,
+      partialSignOracle1,
+      partialSignOracle2,
+    ])
+    .complete();
 });
