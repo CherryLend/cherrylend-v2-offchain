@@ -34,9 +34,7 @@ export async function liquidateLoanOracleTx(
       .payToAddress(
         lucid.utils.validatorToAddress(
           oraclePolicy,
-          lucid.utils.keyHashToCredential(
-            "93c550e1b3946e398c74806b5c133ff52ab021183e2a8be2a80caa06"
-          )
+          lucid.utils.keyHashToCredential(liquidateLoanOracleConfig.stakeHash)
         ),
         { [toUnit(oraclePolicyId, oracleTN)]: 1n }
       )

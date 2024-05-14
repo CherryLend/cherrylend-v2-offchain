@@ -125,6 +125,7 @@ test<LucidContext>("Can liquidate loan transaction if undercollateraized", async
     lenderPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     oracleScript: oracleScript,
+    stakeHash: "93c550e1b3946e398c74806b5c133ff52ab021183e2a8be2a80caa06",
   };
 
   const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);

@@ -80,6 +80,7 @@ export type LiquidateLoanOracleConfig = {
   collateralUTxOs: UTxO[];
   now: POSIXTime;
   oracleScript: Address;
+  stakeHash: string;
 };
 
 export type SelectLoanConfig = {
