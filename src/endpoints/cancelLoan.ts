@@ -17,6 +17,13 @@ export async function cancelLoanTx(
       .collectFrom(cancelLoanConfig.loanUTxOs, redeemer)
       .attachSpendingValidator(loanValidator)
       .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
+      .compose(
+        cancelLoanConfig.service && cancelLoanConfig.service.fee > 0
+          ? lucid.newTx().payToAddress(cancelLoanConfig.service.address, {
+              lovelace: BigInt(cancelLoanConfig.service.fee),
+            })
+          : null
+      )
       .complete();
 
     return {

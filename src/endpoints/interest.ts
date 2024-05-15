@@ -15,6 +15,13 @@ export async function interestTx(
       .collectFrom(getInterestConfig.interestUTxOs, getInterestRedeemer)
       .attachSpendingValidator(interestValidator)
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
+      .compose(
+        getInterestConfig.service && getInterestConfig.service.fee > 0
+          ? lucid.newTx().payToAddress(getInterestConfig.service.address, {
+              lovelace: BigInt(getInterestConfig.service.fee),
+            })
+          : null
+      )
       .complete();
 
     return {

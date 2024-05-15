@@ -87,6 +87,10 @@ test<LucidContext>("Can cancel loan offer if signed by lender", async ({
   const cancelLoanConfig: CancelLoanConfig = {
     loanUTxOs: [cancelLoanUTxO],
     lenderPubKeyHash: lenderPubKeyHash as string,
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   };
 
   const tx = await cancelLoanTx(lucid, cancelLoanConfig);

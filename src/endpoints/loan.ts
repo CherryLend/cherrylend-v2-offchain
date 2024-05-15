@@ -94,7 +94,15 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       }
     }
 
-    const completedTx = await tx.complete();
+    const completedTx = await tx
+      .compose(
+        loanConfig.service && loanConfig.service.fee > 0
+          ? lucid.newTx().payToAddress(loanConfig.service.address, {
+              lovelace: BigInt(loanConfig.service.fee),
+            })
+          : null
+      )
+      .complete();
 
     return {
       type: "success",

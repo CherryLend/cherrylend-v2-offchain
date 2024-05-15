@@ -126,6 +126,10 @@ test<LucidContext>("Can liquidate loan transaction if undercollateraized", async
     now: emulator.now(),
     oracleScript: oracleScript,
     stakeHash: "93c550e1b3946e398c74806b5c133ff52ab021183e2a8be2a80caa06",
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   };
 
   const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);

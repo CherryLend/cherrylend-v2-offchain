@@ -105,6 +105,10 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     borrowerPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     liquidationPolicy: "",
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   };
 
   const tx = await loanTx(lucid, loanConfig);

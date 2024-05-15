@@ -1,4 +1,4 @@
-import { Data, Constr, Lucid, fromText } from "lucid-cardano";
+import { Data, Constr, Lucid } from "lucid-cardano";
 import {
   getValidators,
   getValidityRange,
@@ -28,6 +28,13 @@ export async function liquidateLoanTx(
       .addSignerKey(liquidateCollateral.lenderPubKeyHash)
       .validFrom(validFrom)
       .validTo(validTo)
+      .compose(
+        liquidateCollateral.service && liquidateCollateral.service.fee > 0
+          ? lucid.newTx().payToAddress(liquidateCollateral.service.address, {
+              lovelace: BigInt(liquidateCollateral.service.fee),
+            })
+          : null
+      )
       .complete();
 
     return {

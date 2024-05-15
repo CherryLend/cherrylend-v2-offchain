@@ -100,6 +100,10 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     interestUTxOsInfo: interestUTxOsInfo,
     now: emulator.now(),
     borrowerPubKeyHash: lenderPubKeyHash as string,
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   };
 
   const tx = await repayLoanTx(lucid, repayLoanConfig);

@@ -45,6 +45,10 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, users }) => {
     totalLoanAmount: 300,
     amountInEachUTxO: 100,
     liquidationPolicy: "",
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   });
 
   expect(tx.type).toBe("success");

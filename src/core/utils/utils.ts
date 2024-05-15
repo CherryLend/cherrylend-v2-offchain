@@ -16,13 +16,13 @@ export async function getLucid() {
     url = "https://cardano-mainnet.blockfrost.io/api/v0";
     network = "Mainnet";
   } else {
-    url = "https://cardano-preview.blockfrost.io/api/v0";
-    network = "Preview";
+    url = "https://cardano-preprod.blockfrost.io/api/v0";
+    network = "Preprod";
   }
 
   const lucid = await Lucid.new(
     new Blockfrost(url, process.env.BLOCKFROST_API_KEY),
-    network as "Mainnet" | "Preview"
+    network as "Mainnet" | "Preprod"
   );
   return lucid;
 }
