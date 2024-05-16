@@ -130,6 +130,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     });
 
     expect(tx.type).toBe("success");
@@ -209,6 +210,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     });
 
     expect(tx.type).toBe("success");
@@ -269,6 +271,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     };
     const loanConstructedTx = await loanTx(lucid, loanConfig);
 
@@ -366,6 +369,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     });
 
     expect(offerLoan.type).toBe("success");
@@ -426,6 +430,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 
@@ -546,6 +551,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     });
 
     expect(offerLoan.type).toBe("success");
@@ -606,6 +612,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
+      collateral_factor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 

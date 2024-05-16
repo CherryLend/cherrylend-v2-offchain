@@ -66,6 +66,7 @@ test<LucidContext>("Can cancel loan offer if signed by lender", async ({
     loanDuration: BigInt(100),
     lenderPubKeyHash: lenderPubKeyHash as string,
     liquidationPolicy: "",
+    collateral_factor: BigInt(10),
   };
 
   const datum = Data.to(offerLoanDatum, OfferLoanDatum);

@@ -49,6 +49,7 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, users }) => {
       fee: 2000000,
       address: await lucid.wallet.address(),
     },
+    collateral_factor: 10,
   });
 
   expect(tx.type).toBe("success");
