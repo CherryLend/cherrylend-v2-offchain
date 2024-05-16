@@ -56,6 +56,7 @@ export async function offerLoanTx(
         loanDuration: BigInt(offerLoanConfig.loanDuration),
         lenderPubKeyHash: offerLoanConfig.lenderPubKeyHash,
         liquidationPolicy: offerLoanConfig.liquidationPolicy,
+        collateral_factor: BigInt(offerLoanConfig.collateral_factor),
       };
 
       if (loanUnit === "lovelace") {

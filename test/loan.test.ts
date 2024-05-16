@@ -65,6 +65,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     loanDuration: BigInt(10000000000),
     lenderPubKeyHash: lenderPubKeyHash as string,
     liquidationPolicy: "",
+    collateral_factor: BigInt(10),
   };
 
   const datum = Data.to(offerLoanDatum, OfferLoanDatum);
@@ -109,6 +110,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
       fee: 2000000,
       address: await lucid.wallet.address(),
     },
+    collateral_factor: 10,
   };
 
   const tx = await loanTx(lucid, loanConfig);
