@@ -100,7 +100,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanScriptAddress } = await getValidators();
+    const { loanScriptAddress } = await getValidators(lucid);
 
     const lenderPubKeyHash = lucid.utils.getAddressDetails(
       await lucid.wallet.address()
@@ -126,6 +126,10 @@ describe("All Flows Work", () => {
       totalLoanAmount: 300,
       amountInEachUTxO: 100,
       liquidationPolicy: "",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     });
 
     expect(tx.type).toBe("success");
@@ -145,6 +149,10 @@ describe("All Flows Work", () => {
     const cancelLoanConfig: CancelLoanConfig = {
       loanUTxOs: utxos,
       lenderPubKeyHash: lenderPubKeyHash as string,
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
 
     const cancelLoanConstructedTx = await cancelLoanTx(lucid, cancelLoanConfig);
@@ -167,7 +175,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress } = await getValidators();
+    const { loanRewardAddress } = await getValidators(lucid);
 
     await registerRewardAddress(lucid, loanRewardAddress);
 
@@ -197,6 +205,10 @@ describe("All Flows Work", () => {
       totalLoanAmount: 30000000,
       amountInEachUTxO: 10000000,
       liquidationPolicy: "",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     });
 
     expect(tx.type).toBe("success");
@@ -253,6 +265,10 @@ describe("All Flows Work", () => {
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
     const loanConstructedTx = await loanTx(lucid, loanConfig);
 
@@ -281,6 +297,10 @@ describe("All Flows Work", () => {
       collateralUTxOs: liquidateLoanUTxOs,
       lenderPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
 
     const liquidateLoanConstructedTx = await liquidateLoanTx(
@@ -308,7 +328,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress } = await getValidators();
+    const { loanRewardAddress } = await getValidators(lucid);
 
     await registerRewardAddress(lucid, loanRewardAddress);
 
@@ -342,6 +362,10 @@ describe("All Flows Work", () => {
       totalLoanAmount: 30000000,
       amountInEachUTxO: 10000000,
       liquidationPolicy: liquidationPolicy,
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     });
 
     expect(offerLoan.type).toBe("success");
@@ -398,6 +422,10 @@ describe("All Flows Work", () => {
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: liquidationPolicy,
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
     const loan = await loanTx(lucid, loanConfig);
 
@@ -427,6 +455,10 @@ describe("All Flows Work", () => {
       now: emulator.now(),
       oracleScript: oracleScript,
       stakeHash: "93c550e1b3946e398c74806b5c133ff52ab021183e2a8be2a80caa06",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
 
     const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);
@@ -474,8 +506,9 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress, collateralRewardAddress } =
-      await getValidators();
+    const { loanRewardAddress, collateralRewardAddress } = await getValidators(
+      lucid
+    );
 
     await registerRewardAddress(lucid, loanRewardAddress);
 
@@ -509,6 +542,10 @@ describe("All Flows Work", () => {
       totalLoanAmount: 30000000,
       amountInEachUTxO: 10000000,
       liquidationPolicy: "",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     });
 
     expect(offerLoan.type).toBe("success");
@@ -565,6 +602,10 @@ describe("All Flows Work", () => {
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
     const loan = await loanTx(lucid, loanConfig);
 
@@ -604,6 +645,10 @@ describe("All Flows Work", () => {
       interestUTxOsInfo: interestUTxOsInfo,
       now: emulator.now(),
       borrowerPubKeyHash: lenderPubKeyHash as string,
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
 
     const repayLoan = await repayLoanTx(lucid, repayLoanConfig);
@@ -631,6 +676,10 @@ describe("All Flows Work", () => {
     const interestConfig: InterestConfig = {
       interestUTxOs: interestUTxOs,
       lenderPubKeyHash: lenderPubKeyHash as string,
+      service: {
+        fee: 2000000,
+        address: await lucid.wallet.address(),
+      },
     };
 
     const interestContructedTx = await interestTx(lucid, interestConfig);

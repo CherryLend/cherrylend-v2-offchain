@@ -6,7 +6,7 @@ export async function cancelLoanTx(
   cancelLoanConfig: CancelLoanConfig
 ) {
   try {
-    const { loanValidator } = await getValidators();
+    const { loanValidator } = await getValidators(lucid);
 
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
@@ -17,6 +17,13 @@ export async function cancelLoanTx(
       .collectFrom(cancelLoanConfig.loanUTxOs, redeemer)
       .attachSpendingValidator(loanValidator)
       .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
+      .compose(
+        cancelLoanConfig.service && cancelLoanConfig.service.fee > 0
+          ? lucid.newTx().payToAddress(cancelLoanConfig.service.address, {
+              lovelace: BigInt(cancelLoanConfig.service.fee),
+            })
+          : null
+      )
       .complete();
 
     return {

@@ -6,7 +6,7 @@ export async function liquidateLoanOracleTx(
   lucid: Lucid,
   liquidateLoanOracleConfig: LiquidateLoanOracleConfig
 ) {
-  const { collateralValidator } = await getValidators();
+  const { collateralValidator } = await getValidators(lucid);
 
   const oraclePolicy = bytesToScript(
     liquidateLoanOracleConfig.oracleScript,
@@ -41,6 +41,16 @@ export async function liquidateLoanOracleTx(
       .attachMintingPolicy(oraclePolicy)
       .validFrom(validFrom)
       .validTo(validTo)
+      .compose(
+        liquidateLoanOracleConfig.service &&
+          liquidateLoanOracleConfig.service.fee > 0
+          ? lucid
+              .newTx()
+              .payToAddress(liquidateLoanOracleConfig.service.address, {
+                lovelace: BigInt(liquidateLoanOracleConfig.service.fee),
+              })
+          : null
+      )
       .complete();
 
     return { type: "success", data: tx };

@@ -17,7 +17,7 @@ export async function repayLoanTx(
       collateralValidator,
       collateralStakingValidator,
       collateralRewardAddress,
-    } = await getValidators();
+    } = await getValidators(lucid);
 
     const loanUnit = repayLoanConfig.loanAsset.policyId
       ? toUnit(
@@ -98,7 +98,15 @@ export async function repayLoanTx(
       }
     }
 
-    const completedTx = await tx.complete();
+    const completedTx = await tx
+      .compose(
+        repayLoanConfig.service && repayLoanConfig.service.fee > 0
+          ? lucid.newTx().payToAddress(repayLoanConfig.service.address, {
+              lovelace: BigInt(repayLoanConfig.service.fee),
+            })
+          : null
+      )
+      .complete();
 
     return {
       type: "success",

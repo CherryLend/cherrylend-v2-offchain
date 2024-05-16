@@ -29,7 +29,7 @@ beforeEach<LucidContext>(async (context) => {
 test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
   lucid.selectWalletFromSeed(users.seedPhrase);
 
-  const { loanScriptAddress } = await getValidators();
+  const { loanScriptAddress } = await getValidators(lucid);
 
   const asset = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
@@ -105,6 +105,10 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     borrowerPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     liquidationPolicy: "",
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
   };
 
   const tx = await loanTx(lucid, loanConfig);

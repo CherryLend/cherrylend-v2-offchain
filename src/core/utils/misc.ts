@@ -364,14 +364,14 @@ export function toInterestDatum(datum: string) {
 }
 
 async function getAllCollateralUTxOs(lucid: Lucid) {
-  const { collateralScriptAddress } = await getValidators();
+  const { collateralScriptAddress } = await getValidators(lucid);
 
   const scriptUtxos = await lucid.utxosAt(collateralScriptAddress);
   return scriptUtxos;
 }
 
 async function getAllLoanUTxOs(lucid: Lucid) {
-  const { loanScriptAddress } = await getValidators();
+  const { loanScriptAddress } = await getValidators(lucid);
 
   const scriptUtxos = await lucid.utxosAt(loanScriptAddress);
   const availableOffers = scriptUtxos.filter((utxo) => {
@@ -399,7 +399,7 @@ async function getAllLoanUTxOs(lucid: Lucid) {
 }
 
 async function getAllInterestUTxOs(lucid: Lucid) {
-  const { interestScriptAddress } = await getValidators();
+  const { interestScriptAddress } = await getValidators(lucid);
 
   const scriptUtxos = await lucid.utxosAt(interestScriptAddress);
   return scriptUtxos;
