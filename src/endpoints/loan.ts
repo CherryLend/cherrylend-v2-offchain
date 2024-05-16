@@ -14,7 +14,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       loanStakingValidator,
       loanRewardAddress,
       collateralScriptAddress,
-    } = await getValidators();
+    } = await getValidators(lucid);
 
     const loanUnit = loanConfig.loanAsset.policyId
       ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.tokenName)

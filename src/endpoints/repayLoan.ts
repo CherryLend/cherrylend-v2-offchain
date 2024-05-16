@@ -17,7 +17,7 @@ export async function repayLoanTx(
       collateralValidator,
       collateralStakingValidator,
       collateralRewardAddress,
-    } = await getValidators();
+    } = await getValidators(lucid);
 
     const loanUnit = repayLoanConfig.loanAsset.policyId
       ? toUnit(

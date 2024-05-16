@@ -100,7 +100,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanScriptAddress } = await getValidators();
+    const { loanScriptAddress } = await getValidators(lucid);
 
     const lenderPubKeyHash = lucid.utils.getAddressDetails(
       await lucid.wallet.address()
@@ -175,7 +175,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress } = await getValidators();
+    const { loanRewardAddress } = await getValidators(lucid);
 
     await registerRewardAddress(lucid, loanRewardAddress);
 
@@ -328,7 +328,7 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress } = await getValidators();
+    const { loanRewardAddress } = await getValidators(lucid);
 
     await registerRewardAddress(lucid, loanRewardAddress);
 
@@ -506,8 +506,9 @@ describe("All Flows Work", () => {
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-    const { loanRewardAddress, collateralRewardAddress } =
-      await getValidators();
+    const { loanRewardAddress, collateralRewardAddress } = await getValidators(
+      lucid
+    );
 
     await registerRewardAddress(lucid, loanRewardAddress);
 

@@ -10,7 +10,7 @@ export async function liquidateLoanTx(
   liquidateCollateral: LiquidateCollateralConfig
 ) {
   try {
-    const { collateralValidator } = await getValidators();
+    const { collateralValidator } = await getValidators(lucid);
 
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(0, [""])])])

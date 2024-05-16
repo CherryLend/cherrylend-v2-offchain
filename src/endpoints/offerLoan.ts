@@ -13,7 +13,7 @@ export async function offerLoanTx(
   offerLoanConfig: OfferLoanConfig
 ) {
   try {
-    const { loanScriptAddress } = await getValidators();
+    const { loanScriptAddress } = await getValidators(lucid);
 
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,

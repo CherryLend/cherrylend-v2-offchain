@@ -6,7 +6,7 @@ export async function cancelLoanTx(
   cancelLoanConfig: CancelLoanConfig
 ) {
   try {
-    const { loanValidator } = await getValidators();
+    const { loanValidator } = await getValidators(lucid);
 
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(0, [1n])])])

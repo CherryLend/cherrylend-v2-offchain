@@ -31,7 +31,7 @@ test<LucidContext>("Can liquidate loan transaction if deadline passed and lender
 }) => {
   lucid.selectWalletFromSeed(users.seedPhrase);
 
-  const { collateralScriptAddress } = await getValidators();
+  const { collateralScriptAddress } = await getValidators(lucid);
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()

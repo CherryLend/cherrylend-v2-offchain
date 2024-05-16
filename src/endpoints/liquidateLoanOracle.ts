@@ -6,7 +6,7 @@ export async function liquidateLoanOracleTx(
   lucid: Lucid,
   liquidateLoanOracleConfig: LiquidateLoanOracleConfig
 ) {
-  const { collateralValidator } = await getValidators();
+  const { collateralValidator } = await getValidators(lucid);
 
   const oraclePolicy = bytesToScript(
     liquidateLoanOracleConfig.oracleScript,

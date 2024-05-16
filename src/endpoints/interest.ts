@@ -6,7 +6,7 @@ export async function interestTx(
   getInterestConfig: InterestConfig
 ) {
   try {
-    const { interestValidator } = await getValidators();
+    const { interestValidator } = await getValidators(lucid);
 
     const getInterestRedeemer = Data.to(new Constr(0, [1n]));
 

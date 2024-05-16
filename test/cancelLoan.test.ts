@@ -35,7 +35,7 @@ test<LucidContext>("Can cancel loan offer if signed by lender", async ({
 }) => {
   lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-  const { loanScriptAddress } = await getValidators();
+  const { loanScriptAddress } = await getValidators(lucid);
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()

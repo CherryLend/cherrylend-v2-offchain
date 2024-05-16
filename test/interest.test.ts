@@ -38,7 +38,7 @@ test<LucidContext>("Can create get interest transaction", async ({
 }) => {
   lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-  const { interestScriptAddress } = await getValidators();
+  const { interestScriptAddress } = await getValidators(lucid);
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
