@@ -9,24 +9,6 @@ import {
 import { config } from "dotenv";
 config();
 
-export async function getLucid() {
-  let url = "";
-  let network = "";
-  if (process.env.NODE_ENV === "prod") {
-    url = "https://cardano-mainnet.blockfrost.io/api/v0";
-    network = "Mainnet";
-  } else {
-    url = "https://cardano-preprod.blockfrost.io/api/v0";
-    network = "Preprod";
-  }
-
-  const lucid = await Lucid.new(
-    new Blockfrost(url, process.env.BLOCKFROST_API_KEY),
-    network as "Mainnet" | "Preprod"
-  );
-  return lucid;
-}
-
 export const generateAccountSeedPhrase = async (assets: Assets) => {
   const seedPhrase = generateSeedPhrase();
   return {
