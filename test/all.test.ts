@@ -130,7 +130,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     });
 
     expect(tx.type).toBe("success");
@@ -210,7 +210,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     });
 
     expect(tx.type).toBe("success");
@@ -262,8 +262,8 @@ describe("All Flows Work", () => {
         policyId: "",
         tokenName: "",
       },
-      total_interest_amount: 10000000,
-      total_loan_amount: 10000000,
+      totalInterestAmount: 10000000,
+      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
@@ -271,7 +271,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     };
     const loanConstructedTx = await loanTx(lucid, loanConfig);
 
@@ -369,7 +369,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     });
 
     expect(offerLoan.type).toBe("success");
@@ -421,8 +421,8 @@ describe("All Flows Work", () => {
         policyId: "",
         tokenName: "",
       },
-      total_interest_amount: 10000000,
-      total_loan_amount: 10000000,
+      totalInterestAmount: 10000000,
+      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: liquidationPolicy,
@@ -430,7 +430,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 
@@ -551,7 +551,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     });
 
     expect(offerLoan.type).toBe("success");
@@ -603,8 +603,8 @@ describe("All Flows Work", () => {
         policyId: "",
         tokenName: "",
       },
-      total_interest_amount: 10000000,
-      total_loan_amount: 10000000,
+      totalInterestAmount: 10000000,
+      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
@@ -612,7 +612,7 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateral_factor: 10,
+      collateralFactor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 

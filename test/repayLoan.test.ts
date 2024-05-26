@@ -67,7 +67,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     lenderPubKeyHash: lenderPubKeyHash as string,
     borrowerPubKeyHash: lenderPubKeyHash as string,
     liquidationPolicy: "",
-    collateral_factor: BigInt(10),
+    collateralFactor: BigInt(10),
   };
 
   const datum = Data.to(collateralDatum, CollateralDatum);

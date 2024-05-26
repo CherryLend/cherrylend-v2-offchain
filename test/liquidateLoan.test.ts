@@ -65,7 +65,7 @@ test<LucidContext>("Can liquidate loan transaction if deadline passed and lender
     totalLoanAmount: BigInt(100),
     borrowerPubKeyHash: lenderPubKeyHash as string,
     liquidationPolicy: "",
-    collateral_factor: BigInt(10),
+    collateralFactor: BigInt(10),
   };
 
   const datum = Data.to(collateralDatum, CollateralDatum);
