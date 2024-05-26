@@ -102,7 +102,7 @@ test<LucidContext>("Can liquidate loan transaction if undercollateraized", async
     liquidationPolicy: lucid.utils.mintingPolicyToId(
       bytesToScript(oracleScript, "Native")
     ),
-    collateral_factor: BigInt(10),
+    collateralFactor: BigInt(10),
   };
 
   const datum = Data.to(collateralDatum, CollateralDatum);

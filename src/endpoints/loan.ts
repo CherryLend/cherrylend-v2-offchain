@@ -63,11 +63,11 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         loanDuration: BigInt(loanConfig.collateralUTxOsInfo[i].loanDuration),
         lendTime: BigInt(validFrom),
         lenderPubKeyHash: loanConfig.collateralUTxOsInfo[i].lenderPubKeyHash,
-        totalInterestAmount: BigInt(loanConfig.total_interest_amount),
-        totalLoanAmount: BigInt(loanConfig.total_loan_amount),
+        totalInterestAmount: BigInt(loanConfig.totalInterestAmount),
+        totalLoanAmount: BigInt(loanConfig.totalLoanAmount),
         borrowerPubKeyHash: loanConfig.borrowerPubKeyHash,
         liquidationPolicy: loanConfig.liquidationPolicy,
-        collateral_factor: BigInt(loanConfig.collateral_factor),
+        collateralFactor: BigInt(loanConfig.collateralFactor),
       };
 
       // If it is a native asset loan, make sure the collateral contains the amount of ADA that the lender send when we split it
