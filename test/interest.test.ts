@@ -46,12 +46,12 @@ test<LucidContext>("Can create get interest transaction", async ({
 
   const loanAsset: AssetClassD = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    tokenName: "4d657368546f6b656e",
+    name: "4d657368546f6b656e",
   };
 
   const interestAsset: AssetClassD = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    tokenName: "4d657368546f6b656e",
+    name: "4d657368546f6b656e",
   };
 
   const interestDatum: InterestDatum = {

@@ -17,23 +17,23 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
     } = await getValidators(lucid);
 
     const loanUnit = loanConfig.loanAsset.policyId
-      ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.tokenName)
+      ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.name)
       : "lovelace";
     const lovelace = "lovelace";
 
     const collateralAsset: AssetClassD = {
       policyId: loanConfig.collateralAsset.policyId,
-      tokenName: loanConfig.collateralAsset.tokenName,
+      name: loanConfig.collateralAsset.name,
     };
 
     const interestAsset: AssetClassD = {
       policyId: loanConfig.interestAsset.policyId,
-      tokenName: loanConfig.interestAsset.tokenName,
+      name: loanConfig.interestAsset.name,
     };
 
     const loanAsset: AssetClassD = {
       policyId: loanConfig.loanAsset.policyId,
-      tokenName: loanConfig.loanAsset.tokenName,
+      name: loanConfig.loanAsset.name,
     };
 
     const tx = lucid.newTx();

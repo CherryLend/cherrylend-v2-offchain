@@ -17,24 +17,24 @@ export async function offerLoanTx(
 
     const collateralAsset: AssetClassD = {
       policyId: offerLoanConfig.collateralAsset.policyId,
-      tokenName: offerLoanConfig.collateralAsset.tokenName,
+      name: offerLoanConfig.collateralAsset.name,
     };
 
     const interestAsset: AssetClassD = {
       policyId: offerLoanConfig.interestAsset.policyId,
-      tokenName: offerLoanConfig.interestAsset.tokenName,
+      name: offerLoanConfig.interestAsset.name,
     };
 
     const loanAsset: AssetClassD = {
       policyId: offerLoanConfig.loanAsset.policyId,
-      tokenName: offerLoanConfig.loanAsset.tokenName,
+      name: offerLoanConfig.loanAsset.name,
     };
 
     const loanUnit =
       offerLoanConfig.loanAsset.policyId.length > 0
         ? toUnit(
             offerLoanConfig.loanAsset.policyId,
-            offerLoanConfig.loanAsset.tokenName
+            offerLoanConfig.loanAsset.name
           )
         : "lovelace";
 

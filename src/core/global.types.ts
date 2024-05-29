@@ -6,7 +6,7 @@ export type Address = string;
 
 export type AssetClass = {
   policyId: string;
-  tokenName: string;
+  name: string;
 };
 
 type Service = {

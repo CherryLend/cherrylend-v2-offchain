@@ -33,7 +33,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
 
   const asset = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    tokenName: "4d657368546f6b656e",
+    name: "4d657368546f6b656e",
   };
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
@@ -42,17 +42,17 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
 
   const collateralAsset: AssetClassD = {
     policyId: asset.policyId,
-    tokenName: asset.tokenName,
+    name: asset.name,
   };
 
   const interestAsset: AssetClassD = {
     policyId: asset.policyId,
-    tokenName: asset.tokenName,
+    name: asset.name,
   };
 
   const loanAsset: AssetClassD = {
     policyId: asset.policyId,
-    tokenName: asset.tokenName,
+    name: asset.name,
   };
 
   const offerLoanDatum: OfferLoanDatum = {
@@ -91,15 +91,15 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     collateralUTxOsInfo: collateralUTxOInfo,
     collateralAsset: {
       policyId: asset.policyId,
-      tokenName: asset.tokenName,
+      name: asset.name,
     },
     interestAsset: {
       policyId: asset.policyId,
-      tokenName: asset.tokenName,
+      name: asset.name,
     },
     loanAsset: {
       policyId: asset.policyId,
-      tokenName: asset.tokenName,
+      name: asset.name,
     },
     totalInterestAmount: 100,
     totalLoanAmount: 100,

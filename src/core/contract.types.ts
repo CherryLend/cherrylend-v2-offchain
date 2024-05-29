@@ -2,7 +2,7 @@ import { Data } from "lucid-cardano";
 
 export const AssetClassSchema = Data.Object({
   policyId: Data.Bytes(),
-  tokenName: Data.Bytes(),
+  name: Data.Bytes(),
 });
 export type AssetClassD = Data.Static<typeof AssetClassSchema>;
 export const AssetClassD = AssetClassSchema as unknown as AssetClassD;
