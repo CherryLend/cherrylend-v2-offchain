@@ -32,7 +32,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
 
   const asset = {
     policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    tokenName: "4d657368546f6b656e",
+    name: "4d657368546f6b656e",
   };
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
@@ -41,17 +41,17 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
 
   const collateralAsset: AssetClassD = {
     policyId: asset.policyId,
-    tokenName: asset.tokenName,
+    name: asset.name,
   };
 
   const interestAsset: AssetClassD = {
     policyId: "",
-    tokenName: "",
+    name: "",
   };
 
   const loanAsset: AssetClassD = {
     policyId: asset.policyId,
-    tokenName: asset.tokenName,
+    name: asset.name,
   };
 
   const collateralDatum: CollateralDatum = {
@@ -91,11 +91,11 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
   const repayLoanConfig: RepayLoanConfig = {
     interestAsset: {
       policyId: "",
-      tokenName: "",
+      name: "",
     },
     loanAsset: {
       policyId: asset.policyId,
-      tokenName: asset.tokenName,
+      name: asset.name,
     },
     collateralUTxOs: [collateralUTxO],
     interestUTxOsInfo: interestUTxOsInfo,

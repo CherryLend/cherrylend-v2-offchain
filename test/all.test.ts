@@ -110,16 +110,16 @@ describe("All Flows Work", () => {
       collateralAmount: 100,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAmount: 100,
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanDuration: 100,
       lenderPubKeyHash: lenderPubKeyHash as string,
@@ -190,16 +190,16 @@ describe("All Flows Work", () => {
       collateralAmount: 10000000,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAmount: 10000000,
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanDuration: 100,
       lenderPubKeyHash: lenderPubKeyHash as string,
@@ -229,11 +229,11 @@ describe("All Flows Work", () => {
       loanAmount: 10000000,
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       apr: 100,
     };
@@ -252,15 +252,15 @@ describe("All Flows Work", () => {
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       totalInterestAmount: 10000000,
       totalLoanAmount: 10000000,
@@ -349,16 +349,16 @@ describe("All Flows Work", () => {
       collateralAmount: 10000000,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAmount: 10000000,
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanDuration: 100000000000,
       lenderPubKeyHash: lenderPubKeyHash as string,
@@ -388,11 +388,11 @@ describe("All Flows Work", () => {
       loanAmount: 10000000,
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       apr: 100,
     };
@@ -411,15 +411,15 @@ describe("All Flows Work", () => {
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       totalInterestAmount: 10000000,
       totalLoanAmount: 10000000,
@@ -531,16 +531,16 @@ describe("All Flows Work", () => {
       collateralAmount: 10000000,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAmount: 10000000,
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanDuration: 1000000000000,
       lenderPubKeyHash: lenderPubKeyHash as string,
@@ -570,11 +570,11 @@ describe("All Flows Work", () => {
       loanAmount: 10000000,
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       apr: 100,
     };
@@ -593,15 +593,15 @@ describe("All Flows Work", () => {
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       totalInterestAmount: 10000000,
       totalLoanAmount: 10000000,
@@ -642,11 +642,11 @@ describe("All Flows Work", () => {
     const repayLoanConfig: RepayLoanConfig = {
       interestAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       loanAsset: {
         policyId: "",
-        tokenName: "",
+        name: "",
       },
       collateralUTxOs: collateralUTxO,
       interestUTxOsInfo: interestUTxOsInfo,

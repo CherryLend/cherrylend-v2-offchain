@@ -29,16 +29,16 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, users }) => {
     collateralAmount: 100,
     collateralAsset: {
       policyId: "",
-      tokenName: "",
+      name: "",
     },
     interestAmount: 100,
     interestAsset: {
       policyId: "",
-      tokenName: "",
+      name: "",
     },
     loanAsset: {
       policyId: "",
-      tokenName: "",
+      name: "",
     },
     loanDuration: 100,
     lenderPubKeyHash: lenderPubKeyHash as string,

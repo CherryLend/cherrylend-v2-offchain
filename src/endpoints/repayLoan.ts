@@ -22,25 +22,25 @@ export async function repayLoanTx(
     const loanUnit = repayLoanConfig.loanAsset.policyId
       ? toUnit(
           repayLoanConfig.loanAsset.policyId,
-          repayLoanConfig.loanAsset.tokenName
+          repayLoanConfig.loanAsset.name
         )
       : "lovelace";
 
     const interestUnit = repayLoanConfig.interestAsset.policyId
       ? toUnit(
           repayLoanConfig.interestAsset.policyId,
-          repayLoanConfig.interestAsset.tokenName
+          repayLoanConfig.interestAsset.name
         )
       : "lovelace";
 
     const interestAsset: AssetClassD = {
       policyId: repayLoanConfig.interestAsset.policyId,
-      tokenName: repayLoanConfig.interestAsset.tokenName,
+      name: repayLoanConfig.interestAsset.name,
     };
 
     const loanAsset: AssetClassD = {
       policyId: repayLoanConfig.loanAsset.policyId,
-      tokenName: repayLoanConfig.loanAsset.tokenName,
+      name: repayLoanConfig.loanAsset.name,
     };
 
     const redeemer = Data.to(

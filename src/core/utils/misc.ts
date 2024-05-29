@@ -65,14 +65,13 @@ export async function selectLoanOffers(
 
       if (
         datum.loanAsset.policyId === selectLoanConfig.loanAsset.policyId &&
-        datum.loanAsset.tokenName === selectLoanConfig.loanAsset.tokenName &&
+        datum.loanAsset.name === selectLoanConfig.loanAsset.name &&
         datum.collateralAsset.policyId ===
           selectLoanConfig.collateralAsset.policyId &&
-        datum.collateralAsset.tokenName ===
-          selectLoanConfig.collateralAsset.tokenName &&
+        datum.collateralAsset.name === selectLoanConfig.collateralAsset.name &&
         datum.interestAmount === BigInt(interestAmount) &&
         datum.interestAsset.policyId === selectLoanConfig.loanAsset.policyId &&
-        datum.interestAsset.tokenName === selectLoanConfig.loanAsset.tokenName
+        datum.interestAsset.name === selectLoanConfig.loanAsset.name
       ) {
         return true;
       }
@@ -288,7 +287,7 @@ export function getCollateralInfoFromLoan(
 
       let lovelaceAmount = 0;
 
-      if (datum.loanAsset.policyId === "" && datum.loanAsset.tokenName === "") {
+      if (datum.loanAsset.policyId === "" && datum.loanAsset.name === "") {
         lovelaceAmount = loanAmount;
       } else {
         lovelaceAmount = minLovelaceAmount;
@@ -381,7 +380,7 @@ async function getAllLoanUTxOs(lucid: Lucid) {
         OfferLoanDatum
       );
       const lovelaceLoan =
-        datum.loanAsset.policyId === "" && datum.loanAsset.tokenName === "";
+        datum.loanAsset.policyId === "" && datum.loanAsset.name === "";
 
       // Make sure if the loan is an native asset loan, it contains the minlovelaceAmount
       if (lovelaceLoan) {
