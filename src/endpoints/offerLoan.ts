@@ -39,8 +39,8 @@ export async function offerLoanTx(
         : "lovelace";
 
     const loanUTXoSAmount = splitLoanAmount(
-      offerLoanConfig.totalLoanAmount,
-      offerLoanConfig.amountInEachUTxO
+      offerLoanConfig.amountInEachUTxO,
+      offerLoanConfig.totalLoanAmount
     );
 
     const tx = lucid.newTx();
