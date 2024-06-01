@@ -64,16 +64,32 @@ export async function repayLoanTx(
         lenderPubKeyHash: repayLoanConfig.interestUTxOsInfo[i].lenderPubKeyHash,
       };
 
-      tx.payToContract(
-        interestScriptAddress,
-        { inline: Data.to(interestDatum, InterestDatum) },
-        {
-          [loanUnit]: BigInt(
-            repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
-              repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
-          ),
-        }
-      );
+      if (loanUnit === "lovelace") {
+        tx.payToContract(
+          interestScriptAddress,
+          { inline: Data.to(interestDatum, InterestDatum) },
+          {
+            [loanUnit]: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
+                repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+            ),
+          }
+        );
+      } else {
+        tx.payToContract(
+          interestScriptAddress,
+          { inline: Data.to(interestDatum, InterestDatum) },
+          {
+            [loanUnit]: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
+                repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+            ),
+            lovelace: BigInt(
+              repayLoanConfig.interestUTxOsInfo[i].lovelaceAmount
+            ),
+          }
+        );
+      }
     }
 
     const completedTx = await tx

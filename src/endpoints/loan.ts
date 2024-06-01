@@ -19,7 +19,6 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
     const loanUnit = loanConfig.loanAsset.policyId
       ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.name)
       : "lovelace";
-    const lovelace = "lovelace";
 
     const collateralAsset: AssetClassD = {
       policyId: loanConfig.collateralAsset.policyId,
@@ -76,7 +75,9 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
           collateralScriptAddress,
           { inline: Data.to(collateralDatum, CollateralDatum) },
           {
-            [loanUnit]: BigInt(loanConfig.collateralUTxOsInfo[i].loanAmount),
+            [loanUnit]: BigInt(
+              loanConfig.collateralUTxOsInfo[i].collateralAmount
+            ),
           }
         );
       } else {
@@ -87,9 +88,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
             [loanUnit]: BigInt(
               loanConfig.collateralUTxOsInfo[i].collateralAmount
             ),
-            [lovelace]: BigInt(
-              loanConfig.collateralUTxOsInfo[i].lovelaceAmount
-            ),
+            lovelace: BigInt(loanConfig.collateralUTxOsInfo[i].lovelaceAmount),
           }
         );
       }

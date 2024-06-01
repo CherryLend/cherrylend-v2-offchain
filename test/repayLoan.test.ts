@@ -8,6 +8,7 @@ import {
   RepayLoanConfig,
   getInterestInfoFromCollateral,
   repayLoanTx,
+  minLovelaceAmount,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -78,7 +79,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
     outputIndex: 1,
     assets: {
-      lovelace: 1861920n,
+      lovelace: BigInt(minLovelaceAmount),
       a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e:
         100n,
     },
