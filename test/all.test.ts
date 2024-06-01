@@ -634,10 +634,9 @@ describe("All Flows Work", () => {
       lucid
     );
 
-    const collateralDatum = collateral.map((loan) => loan.datum);
     const collateralUTxO = collateral.map((loan) => loan.collateralUTxO);
 
-    const interestUTxOsInfo = getInterestInfoFromCollateral(collateralDatum);
+    const interestUTxOsInfo = getInterestInfoFromCollateral(collateral);
 
     const repayLoanConfig: RepayLoanConfig = {
       interestAsset: {
