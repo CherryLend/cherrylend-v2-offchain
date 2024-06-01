@@ -19,6 +19,8 @@ type LucidContext = {
 beforeEach<LucidContext>(async (context) => {
   context.users = await generateAccountSeedPhrase({
     lovelace: BigInt(100_000_000),
+    ["a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e"]:
+      BigInt(100_000_000),
   });
 
   context.emulator = new Emulator([context.users]);
@@ -45,8 +47,8 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
   };
 
   const interestAsset: AssetClassD = {
-    policyId: "",
-    name: "",
+    policyId: asset.policyId,
+    name: asset.name,
   };
 
   const loanAsset: AssetClassD = {
@@ -86,12 +88,14 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     scriptRef: undefined,
   };
 
-  const interestUTxOsInfo = getInterestInfoFromCollateral([collateralDatum]);
+  const interestUTxOsInfo = getInterestInfoFromCollateral([
+    { datum: collateralDatum, collateralUTxO: collateralUTxO },
+  ]);
 
   const repayLoanConfig: RepayLoanConfig = {
     interestAsset: {
-      policyId: "",
-      name: "",
+      policyId: asset.policyId,
+      name: asset.name,
     },
     loanAsset: {
       policyId: asset.policyId,

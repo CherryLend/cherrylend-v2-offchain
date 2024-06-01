@@ -1,4 +1,5 @@
 import { UTxO } from "lucid-cardano";
+import { CollateralDatum } from "./contract.types.js";
 
 export type POSIXTime = number;
 export type CBORHex = string;
@@ -102,4 +103,9 @@ export type SelectLoanConfig = {
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
   apr: number;
+};
+
+export type GetInterestInfoParams = {
+  collateralUTxO: UTxO;
+  datum: CollateralDatum;
 };

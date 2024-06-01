@@ -4,7 +4,11 @@ import {
   InterestDatum,
   OfferLoanDatum,
 } from "../contract.types.js";
-import { CollateralUTxOsInfo, SelectLoanConfig } from "../global.types.js";
+import {
+  CollateralUTxOsInfo,
+  GetInterestInfoParams,
+  SelectLoanConfig,
+} from "../global.types.js";
 import { getValidators } from "./scripts.js";
 import { minLovelaceAmount } from "../constants.js";
 
@@ -316,16 +320,21 @@ export function getCollateralInfoFromLoan(
 }
 
 export function getInterestInfoFromCollateral(
-  collateralDatum: CollateralDatum[]
+  collateral: GetInterestInfoParams[]
 ) {
-  return collateralDatum.map((datum) => {
-    const repayLoanAmount = parseInt(datum.loanAmount.toString());
-    const repayInterestAmount = parseInt(datum.interestAmount.toString());
-    const lenderPubKeyHash = datum.lenderPubKeyHash;
+  return collateral.map((collateral) => {
+    const repayLoanAmount = parseInt(collateral.datum.loanAmount.toString());
+    const repayInterestAmount = parseInt(
+      collateral.datum.interestAmount.toString()
+    );
+    const lenderPubKeyHash = collateral.datum.lenderPubKeyHash;
+    const lovelaceAmount = collateral.collateralUTxO.assets["lovelace"];
+
     return {
       repayLoanAmount: repayLoanAmount,
       repayInterestAmount: repayInterestAmount,
       lenderPubKeyHash: lenderPubKeyHash,
+      lovelaceAmount: lovelaceAmount,
     };
   });
 }

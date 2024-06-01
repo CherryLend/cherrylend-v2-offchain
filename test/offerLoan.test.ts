@@ -12,6 +12,8 @@ type LucidContext = {
 beforeEach<LucidContext>(async (context) => {
   const users = await generateAccountSeedPhrase({
     lovelace: BigInt(100_000_000),
+    ["a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e"]:
+      BigInt(10000000),
   });
   context.users = users;
   context.emulator = new Emulator([users]);
@@ -37,13 +39,13 @@ test<LucidContext>("Can submit loan offer", async ({ lucid, users }) => {
       name: "",
     },
     loanAsset: {
-      policyId: "",
-      name: "",
+      policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
+      name: "4d657368546f6b656e",
     },
     loanDuration: 100,
     lenderPubKeyHash: lenderPubKeyHash as string,
-    totalLoanAmount: 300,
-    amountInEachUTxO: 100,
+    totalLoanAmount: 10000,
+    amountInEachUTxO: 1000,
     liquidationPolicy: "",
     service: {
       fee: 2000000,
