@@ -328,7 +328,7 @@ export function getInterestInfoFromCollateral(
       collateral.datum.interestAmount.toString()
     );
     const lenderPubKeyHash = collateral.datum.lenderPubKeyHash;
-    const lovelaceAmount = collateral.collateralUTxO.assets["lovelace"];
+    const lovelaceAmount = Number(collateral.collateralUTxO.assets["lovelace"]);
 
     return {
       repayLoanAmount: repayLoanAmount,

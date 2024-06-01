@@ -58,6 +58,7 @@ type InterestUTxOsInfo = {
   repayLoanAmount: number;
   repayInterestAmount: number;
   lenderPubKeyHash: string;
+  lovelaceAmount: number;
 };
 
 export type RepayLoanConfig = {

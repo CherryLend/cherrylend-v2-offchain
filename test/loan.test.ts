@@ -8,7 +8,6 @@ import {
   OfferLoanDatum,
   getValidators,
   getCollateralInfoFromLoan,
-  minLovelaceAmount,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -32,8 +31,8 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
   const { loanScriptAddress } = await getValidators(lucid);
 
   const asset = {
-    policyId: "a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab5",
-    name: "4d657368546f6b656e",
+    policyId: "",
+    name: "",
   };
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
@@ -56,9 +55,9 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
   };
 
   const offerLoanDatum: OfferLoanDatum = {
-    loanAmount: BigInt(100),
+    loanAmount: BigInt(10000000),
     loanAsset: loanAsset,
-    collateralAmount: BigInt(100),
+    collateralAmount: BigInt(10000000),
     collateralAsset: collateralAsset,
     interestAmount: BigInt(100),
     interestAsset: interestAsset,
@@ -74,9 +73,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
     outputIndex: 1,
     assets: {
-      lovelace: BigInt(minLovelaceAmount),
-      a1deebd26b685e6799218f60e2cad0a80928c4145d12f1bf49aebab54d657368546f6b656e:
-        100n,
+      lovelace: BigInt(10000000),
     },
     address: loanScriptAddress,
     datumHash: undefined,
@@ -102,7 +99,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
       name: asset.name,
     },
     totalInterestAmount: 100,
-    totalLoanAmount: 100,
+    totalLoanAmount: 10000000,
     borrowerPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     liquidationPolicy: "",
