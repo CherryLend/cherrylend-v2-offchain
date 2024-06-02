@@ -3,11 +3,11 @@ import {
   SpendingValidator,
   Lucid,
   WithdrawalValidator,
-  applyDoubleCBOREncoding,
   Script,
   ScriptType,
   NativeScript,
   nativeScriptFromJson,
+  applyDoubleCborEncoding,
 } from "lucid-cardano";
 import {
   rewardAddress,
@@ -83,7 +83,7 @@ export async function getValidators(lucid: Lucid) {
 
   const collateralValidator: SpendingValidator = {
     type: "PlutusV2",
-    script: applyDoubleCBOREncoding(
+    script: applyDoubleCborEncoding(
       applyParamsToScript(collateralValidatorCBOR, [interestValidatorHash])
     ),
   };
@@ -96,7 +96,7 @@ export async function getValidators(lucid: Lucid) {
 
   const loanValidator: SpendingValidator = {
     type: "PlutusV2",
-    script: applyDoubleCBOREncoding(
+    script: applyDoubleCborEncoding(
       applyParamsToScript(loanValidatorCBOR, [collateralValidatorHash])
     ),
   };

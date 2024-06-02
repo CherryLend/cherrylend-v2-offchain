@@ -275,9 +275,9 @@ export async function getLendersLiquidateCollateral(
 
 // Fold the loans into a UTxOs that contains unique lenders.
 export function getCollateralInfoFromLoan(
-  loanOfferUtxosDatum: OfferLoanDatum[]
+  loanOfferUTxOsDatum: OfferLoanDatum[]
 ) {
-  return loanOfferUtxosDatum.reduce(
+  return loanOfferUTxOsDatum.reduce(
     (collateralInfo: CollateralUTxOsInfo[], datum) => {
       const loanAmount = parseInt(datum.loanAmount.toString());
       const collateralAmount = parseInt(datum.collateralAmount.toString());
@@ -374,15 +374,15 @@ export function toInterestDatum(datum: string) {
 async function getAllCollateralUTxOs(lucid: Lucid) {
   const { collateralScriptAddress } = await getValidators(lucid);
 
-  const scriptUtxos = await lucid.utxosAt(collateralScriptAddress);
-  return scriptUtxos;
+  const scriptUTxOs = await lucid.utxosAt(collateralScriptAddress);
+  return scriptUTxOs;
 }
 
 async function getAllLoanUTxOs(lucid: Lucid) {
   const { loanScriptAddress } = await getValidators(lucid);
 
-  const scriptUtxos = await lucid.utxosAt(loanScriptAddress);
-  const availableOffers = scriptUtxos.filter((utxo) => {
+  const scriptUTxOs = await lucid.utxosAt(loanScriptAddress);
+  const availableOffers = scriptUTxOs.filter((utxo) => {
     try {
       const datum = Data.castFrom(
         Data.from(utxo.datum as string),
@@ -409,6 +409,6 @@ async function getAllLoanUTxOs(lucid: Lucid) {
 async function getAllInterestUTxOs(lucid: Lucid) {
   const { interestScriptAddress } = await getValidators(lucid);
 
-  const scriptUtxos = await lucid.utxosAt(interestScriptAddress);
-  return scriptUtxos;
+  const scriptUTxOs = await lucid.utxosAt(interestScriptAddress);
+  return scriptUTxOs;
 }
