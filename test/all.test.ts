@@ -160,9 +160,9 @@ describe("All Flows Work", () => {
 
     expect(cancelLoanConstructedTx.type).toBe("success");
 
-    const cancelLoanCborHex = cancelLoanConstructedTx.tx?.toString();
+    const cancelLoanCBORHex = cancelLoanConstructedTx.tx?.toString();
     const cancelLoanUserSign = await lucid
-      .fromTx(cancelLoanCborHex as string)
+      .fromTx(cancelLoanCBORHex as string)
       .sign()
       .complete();
 
@@ -277,10 +277,10 @@ describe("All Flows Work", () => {
 
     expect(loanConstructedTx.type).toBe("success");
 
-    const loanCborHex = loanConstructedTx.tx?.toString();
+    const loanCBORHex = loanConstructedTx.tx?.toString();
 
     const loanUserSign = await lucid
-      .fromTx(loanCborHex as string)
+      .fromTx(loanCBORHex as string)
       .sign()
       .complete();
 
@@ -313,9 +313,9 @@ describe("All Flows Work", () => {
 
     expect(liquidateLoanConstructedTx.type).toBe("success");
 
-    const liquidateLoanCborHex = liquidateLoanConstructedTx.tx?.toString();
+    const liquidateLoanCBORHex = liquidateLoanConstructedTx.tx?.toString();
     const liquidateLoanUserSign = await lucid
-      .fromTx(liquidateLoanCborHex as string)
+      .fromTx(liquidateLoanCBORHex as string)
       .sign()
       .complete();
 
@@ -436,10 +436,10 @@ describe("All Flows Work", () => {
 
     expect(loan.type).toBe("success");
 
-    const loanCborHex = loan.tx?.toString();
+    const loanCBORHex = loan.tx?.toString();
 
     const loanSigned = await lucid
-      .fromTx(loanCborHex as string)
+      .fromTx(loanCBORHex as string)
       .sign()
       .complete();
 
@@ -618,10 +618,10 @@ describe("All Flows Work", () => {
 
     expect(loan.type).toBe("success");
 
-    const loanCborHex = loan.tx?.toString();
+    const loanCBORHex = loan.tx?.toString();
 
     const loanSigned = await lucid
-      .fromTx(loanCborHex as string)
+      .fromTx(loanCBORHex as string)
       .sign()
       .complete();
 
@@ -692,9 +692,9 @@ describe("All Flows Work", () => {
 
     expect(interestContructedTx.type).toBe("success");
 
-    const interestCborHex = interestContructedTx.tx?.toString();
+    const interestCBORHex = interestContructedTx.tx?.toString();
     const interestSigned = await lucid
-      .fromTx(interestCborHex as string)
+      .fromTx(interestCBORHex as string)
       .sign()
       .complete();
 
