@@ -3,7 +3,7 @@ import {
   SpendingValidator,
   Lucid,
   WithdrawalValidator,
-  applyDoubleCborEncoding,
+  applyDoubleCBOREncoding,
   Script,
   ScriptType,
   NativeScript,
@@ -83,7 +83,7 @@ export async function getValidators(lucid: Lucid) {
 
   const collateralValidator: SpendingValidator = {
     type: "PlutusV2",
-    script: applyDoubleCborEncoding(
+    script: applyDoubleCBOREncoding(
       applyParamsToScript(collateralValidatorCBOR, [interestValidatorHash])
     ),
   };
@@ -96,7 +96,7 @@ export async function getValidators(lucid: Lucid) {
 
   const loanValidator: SpendingValidator = {
     type: "PlutusV2",
-    script: applyDoubleCborEncoding(
+    script: applyDoubleCBOREncoding(
       applyParamsToScript(loanValidatorCBOR, [collateralValidatorHash])
     ),
   };

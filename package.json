@@ -15,7 +15,6 @@
     "repack": "pnpm run build  && pnpm pack"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
     "lucid-cardano": "^0.10.7",
     "ts-node": "^10.9.2"
   },

@@ -1,13 +1,4 @@
-import {
-  Lucid,
-  Blockfrost,
-  generateSeedPhrase,
-  Assets,
-  Emulator,
-  Tx,
-} from "lucid-cardano";
-import { config } from "dotenv";
-config();
+import { Lucid, generateSeedPhrase, Assets, Emulator, Tx } from "lucid-cardano";
 
 export const generateAccountSeedPhrase = async (assets: Assets) => {
   const seedPhrase = generateSeedPhrase();
