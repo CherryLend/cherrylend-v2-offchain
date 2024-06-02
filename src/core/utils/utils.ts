@@ -1,4 +1,4 @@
-import { Lucid, generateSeedPhrase, Assets, Emulator, Tx } from "lucid-cardano";
+import { Lucid, generateSeedPhrase, Assets } from "lucid-cardano";
 
 export const generateAccountSeedPhrase = async (assets: Assets) => {
   const seedPhrase = generateSeedPhrase();
@@ -10,17 +10,6 @@ export const generateAccountSeedPhrase = async (assets: Assets) => {
     assets,
   };
 };
-
-export function quickSubmitBuilder(emulator: Emulator) {
-  return async function ({ txBuilder }: { txBuilder: Tx }) {
-    const completedTx = await txBuilder.complete();
-    const signedTx = await completedTx.sign().complete();
-    const txHash = signedTx.submit();
-    emulator.awaitBlock(1);
-
-    return txHash;
-  };
-}
 
 export function getValidityRange(lucid: Lucid, now: number) {
   let validFromInit;
