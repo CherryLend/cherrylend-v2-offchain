@@ -2,12 +2,12 @@ import { Data, Constr, Lucid } from "lucid-cardano";
 import {
   getValidators,
   getValidityRange,
-  LiquidateCollateralConfig,
+  LiquidateLoanConfig,
 } from "../core/index.js";
 
 export async function liquidateLoanTx(
   lucid: Lucid,
-  liquidateCollateral: LiquidateCollateralConfig
+  liquidateLoan: LiquidateLoanConfig
 ) {
   try {
     const { collateralValidator } = await getValidators(lucid);
@@ -16,22 +16,23 @@ export async function liquidateLoanTx(
       new Constr(1, [new Constr(0, [new Constr(0, [""])])])
     );
 
-    const { validFrom, validTo } = getValidityRange(
-      lucid,
-      liquidateCollateral.now
+    const { validFrom, validTo } = getValidityRange(lucid, liquidateLoan.now);
+
+    const collateralUTxOs = await lucid.utxosByOutRef(
+      liquidateLoan.requestOutRefs
     );
 
     const tx = lucid.newTx();
     const completedTx = await tx
-      .collectFrom(liquidateCollateral.collateralUTxOs, redeemer)
+      .collectFrom(collateralUTxOs, redeemer)
       .attachSpendingValidator(collateralValidator)
-      .addSignerKey(liquidateCollateral.lenderPubKeyHash)
+      .addSignerKey(liquidateLoan.lenderPubKeyHash)
       .validFrom(validFrom)
       .validTo(validTo)
       .compose(
-        liquidateCollateral.service && liquidateCollateral.service.fee > 0
-          ? lucid.newTx().payToAddress(liquidateCollateral.service.address, {
-              lovelace: BigInt(liquidateCollateral.service.fee),
+        liquidateLoan.service && liquidateLoan.service.fee > 0
+          ? lucid.newTx().payToAddress(liquidateLoan.service.address, {
+              lovelace: BigInt(liquidateLoan.service.fee),
             })
           : null
       )

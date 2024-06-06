@@ -1,9 +1,9 @@
-import { Emulator, Lucid } from "lucid-cardano";
+import { Emulator, Lucid, UTxO } from "lucid-cardano";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   CancelLoanConfig,
   InterestConfig,
-  LiquidateCollateralConfig,
+  LiquidateLoanConfig,
   LiquidateLoanOracleConfig,
   LoanConfig,
   RepayLoanConfig,
@@ -17,7 +17,8 @@ import {
   getInterestInfoFromCollateral,
   getLendersCollateral,
   getLendersInterestPayment,
-  getLendersLiquidateCollateral,
+  getLendersLiquidateLoan,
+  getLendersLoanOffers,
   getValidators,
   interestTx,
   liquidateLoanOracleTx,
@@ -26,6 +27,7 @@ import {
   offerLoanTx,
   repayLoanTx,
   selectLoanOffers,
+  registerRewardAddress,
 } from "../src";
 
 type LucidContext = {
@@ -36,27 +38,12 @@ type LucidContext = {
   oracleScript: string;
 };
 
-async function registerRewardAddress(
-  lucid: Lucid,
-  rewardAddress: string
-): Promise<void> {
-  const tx = await lucid.newTx().registerStake(rewardAddress).complete();
-  const signedTx = await tx.sign().complete();
-  await signedTx.submit();
-}
-
 beforeEach<LucidContext>(async (context) => {
   context.users = {
     account1: await generateAccountSeedPhrase({
       lovelace: BigInt(100_000_000),
     }),
     account2: await generateAccountSeedPhrase({
-      lovelace: BigInt(100_000_000),
-    }),
-    account3: await generateAccountSeedPhrase({
-      lovelace: BigInt(100_000_000),
-    }),
-    account4: await generateAccountSeedPhrase({
       lovelace: BigInt(100_000_000),
     }),
   };
@@ -99,8 +86,6 @@ describe("All Flows Work", () => {
     emulator,
   }) => {
     lucid.selectWalletFromSeed(users.account1.seedPhrase);
-
-    const { loanScriptAddress } = await getValidators(lucid);
 
     const lenderPubKeyHash = lucid.utils.getAddressDetails(
       await lucid.wallet.address()
@@ -145,10 +130,15 @@ describe("All Flows Work", () => {
 
     emulator.awaitBlock(10);
 
-    const utxos = await lucid.utxosAt(loanScriptAddress);
+    const utxos = await getLendersLoanOffers(lenderPubKeyHash as string, lucid);
 
     const cancelLoanConfig: CancelLoanConfig = {
-      loanUTxOs: utxos,
+      requestOutRefs: [
+        {
+          txHash: utxos[0].loanOfferUTxO.txHash,
+          outputIndex: utxos[0].loanOfferUTxO.outputIndex,
+        },
+      ],
       lenderPubKeyHash: lenderPubKeyHash as string,
       service: {
         fee: 2000000,
@@ -161,6 +151,7 @@ describe("All Flows Work", () => {
     expect(cancelLoanConstructedTx.type).toBe("success");
 
     const cancelLoanCBORHex = cancelLoanConstructedTx.tx?.toString();
+
     const cancelLoanUserSign = await lucid
       .fromTx(cancelLoanCBORHex as string)
       .sign()
@@ -245,10 +236,17 @@ describe("All Flows Work", () => {
     // @ts-ignore: Unreachable code error
     const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
 
+    const outputRef = allUTxOs.map((utxo) => {
+      return {
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      };
+    });
+
     const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
     const loanConfig: LoanConfig = {
-      loanUTxOs: allUTxOs,
+      requestOutRefs: outputRef,
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
@@ -288,7 +286,7 @@ describe("All Flows Work", () => {
 
     emulator.awaitBlock(10000);
 
-    const liquidateLoan = await getLendersLiquidateCollateral(
+    const liquidateLoan = await getLendersLiquidateLoan(
       lenderPubKeyHash as string,
       lucid,
       emulator.now()
@@ -296,8 +294,14 @@ describe("All Flows Work", () => {
 
     const liquidateLoanUTxOs = liquidateLoan.map((loan) => loan.collateralUTxO);
 
-    const liquidateLoanConfig: LiquidateCollateralConfig = {
-      collateralUTxOs: liquidateLoanUTxOs,
+    const liquidateOutputRef = liquidateLoanUTxOs.map((utxo) => {
+      return {
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      };
+    });
+    const liquidateLoanConfig: LiquidateLoanConfig = {
+      requestOutRefs: liquidateOutputRef,
       lenderPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       service: {
@@ -406,8 +410,15 @@ describe("All Flows Work", () => {
 
     const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
+    const outputRef = allUTxOs.map((utxo) => {
+      return {
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      };
+    });
+
     const loanConfig: LoanConfig = {
-      loanUTxOs: allUTxOs,
+      requestOutRefs: outputRef,
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
@@ -454,8 +465,13 @@ describe("All Flows Work", () => {
 
     const collateralUTxOs = collateral.map((loan) => loan.collateralUTxO);
 
-    const liquidateCollateralConfig: LiquidateLoanOracleConfig = {
-      collateralUTxOs: collateralUTxOs,
+    const liquidateLoanConfig: LiquidateLoanOracleConfig = {
+      requestOutRefs: [
+        {
+          txHash: collateralUTxOs[0].txHash,
+          outputIndex: collateralUTxOs[0].outputIndex,
+        },
+      ],
       lenderPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       oracleScript: oracleScript,
@@ -466,7 +482,7 @@ describe("All Flows Work", () => {
       },
     };
 
-    const tx = await liquidateLoanOracleTx(lucid, liquidateCollateralConfig);
+    const tx = await liquidateLoanOracleTx(lucid, liquidateLoanConfig);
 
     expect(tx.type).toBe("success");
 
@@ -588,8 +604,15 @@ describe("All Flows Work", () => {
 
     const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
+    const loanOutputRef = allUTxOs.map((utxo) => {
+      return {
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      };
+    });
+
     const loanConfig: LoanConfig = {
-      loanUTxOs: allUTxOs,
+      requestOutRefs: loanOutputRef,
       collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
@@ -636,6 +659,13 @@ describe("All Flows Work", () => {
 
     const collateralUTxO = collateral.map((loan) => loan.collateralUTxO);
 
+    const collateralUTxORef = collateralUTxO.map((utxo) => {
+      return {
+        txHash: utxo.txHash,
+        outputIndex: utxo.outputIndex,
+      };
+    });
+
     const interestUTxOsInfo = getInterestInfoFromCollateral(collateral);
 
     const repayLoanConfig: RepayLoanConfig = {
@@ -647,7 +677,7 @@ describe("All Flows Work", () => {
         policyId: "",
         name: "",
       },
-      collateralUTxOs: collateralUTxO,
+      requestOutRefs: collateralUTxORef,
       interestUTxOsInfo: interestUTxOsInfo,
       now: emulator.now(),
       borrowerPubKeyHash: lenderPubKeyHash as string,
@@ -680,7 +710,12 @@ describe("All Flows Work", () => {
     const interestUTxOs = interest.map((loan) => loan.interestUTxO);
 
     const interestConfig: InterestConfig = {
-      interestUTxOs: interestUTxOs,
+      requestOutRefs: [
+        {
+          txHash: interestUTxOs[0].txHash,
+          outputIndex: interestUTxOs[0].outputIndex,
+        },
+      ],
       lenderPubKeyHash: lenderPubKeyHash as string,
       service: {
         fee: 2000000,

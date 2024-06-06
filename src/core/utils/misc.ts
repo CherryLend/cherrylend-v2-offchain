@@ -239,7 +239,7 @@ export async function getLendersInterestPayment(
   return lendersInterestPaymentInfo;
 }
 
-export async function getLendersLiquidateCollateral(
+export async function getLendersLiquidateLoan(
   lenderPubKeyHash: string,
   lucid: Lucid,
   now: number

@@ -29,3 +29,14 @@ export function getValidityRange(lucid: Lucid, now: number) {
   const validTo = lucid.utils.slotToUnixTime(validToSlot);
   return { validFrom, validTo };
 }
+
+export async function registerRewardAddress(
+  lucid: Lucid,
+  rewardAddress: string
+): Promise<void> {
+  const tx = await lucid.newTx().registerStake(rewardAddress).complete();
+
+  const signedTx = await tx.sign().complete();
+
+  await signedTx.submit();
+}

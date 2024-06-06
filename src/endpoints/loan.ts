@@ -35,15 +35,17 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       name: loanConfig.loanAsset.name,
     };
 
-    const tx = lucid.newTx();
-
     const { validFrom, validTo } = getValidityRange(lucid, loanConfig.now);
 
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
     );
 
-    tx.collectFrom(loanConfig.loanUTxOs, redeemer)
+    const loanUTxOs = await lucid.utxosByOutRef(loanConfig.requestOutRefs);
+
+    const tx = lucid
+      .newTx()
+      .collectFrom(loanUTxOs, redeemer)
       .attachSpendingValidator(loanValidator)
       .withdraw(loanRewardAddress, 0n, Data.to(1n))
       .attachWithdrawalValidator(loanStakingValidator)

@@ -25,10 +25,14 @@ export async function liquidateLoanOracleTx(
     liquidateLoanOracleConfig.now
   );
 
+  const collateralUTxOs = await lucid.utxosByOutRef(
+    liquidateLoanOracleConfig.requestOutRefs
+  );
+
   try {
     const tx = await lucid
       .newTx()
-      .collectFrom(liquidateLoanOracleConfig.collateralUTxOs, redeemer)
+      .collectFrom(collateralUTxOs, redeemer)
       .attachSpendingValidator(collateralValidator)
       .mintAssets({ [toUnit(oraclePolicyId, oracleTN)]: 1n })
       .payToAddress(
