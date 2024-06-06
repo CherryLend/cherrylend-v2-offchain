@@ -18,6 +18,7 @@ import {
   getLendersCollateral,
   getLendersInterestPayment,
   getLendersLiquidateCollateral,
+  getLendersLoanOffers,
   getValidators,
   interestTx,
   liquidateLoanOracleTx,
@@ -41,7 +42,9 @@ async function registerRewardAddress(
   rewardAddress: string
 ): Promise<void> {
   const tx = await lucid.newTx().registerStake(rewardAddress).complete();
+
   const signedTx = await tx.sign().complete();
+
   await signedTx.submit();
 }
 
@@ -145,10 +148,10 @@ describe("All Flows Work", () => {
 
     emulator.awaitBlock(10);
 
-    const utxos = await lucid.utxosAt(loanScriptAddress);
+    const utxos = await getLendersLoanOffers(lenderPubKeyHash as string, lucid);
 
     const cancelLoanConfig: CancelLoanConfig = {
-      loanUTxOs: utxos,
+      loanUTxOs: [utxos[0].loanOfferUTxO],
       lenderPubKeyHash: lenderPubKeyHash as string,
       service: {
         fee: 2000000,
@@ -161,6 +164,7 @@ describe("All Flows Work", () => {
     expect(cancelLoanConstructedTx.type).toBe("success");
 
     const cancelLoanCBORHex = cancelLoanConstructedTx.tx?.toString();
+
     const cancelLoanUserSign = await lucid
       .fromTx(cancelLoanCBORHex as string)
       .sign()
