@@ -42,8 +42,12 @@ export async function repayLoanTx(
 
     const { validFrom, validTo } = getValidityRange(lucid, repayLoanConfig.now);
 
+    const collateralUTxOs = await lucid.utxosByOutRef(
+      repayLoanConfig.requestOutRefs
+    );
+
     const tx = lucid.newTx();
-    tx.collectFrom(repayLoanConfig.collateralUTxOs, redeemer)
+    tx.collectFrom(collateralUTxOs, redeemer)
       .attachSpendingValidator(collateralValidator)
       .withdraw(collateralRewardAddress, 0n, Data.to(1n))
       .attachWithdrawalValidator(collateralStakingValidator)

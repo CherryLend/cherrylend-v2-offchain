@@ -28,8 +28,6 @@ beforeEach<LucidContext>(async (context) => {
 test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
   lucid.selectWalletFromSeed(users.seedPhrase);
 
-  const { loanScriptAddress } = await getValidators(lucid);
-
   const asset = {
     policyId: "",
     name: "",
@@ -67,24 +65,16 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     collateralFactor: BigInt(10),
   };
 
-  const datum = Data.to(offerLoanDatum, OfferLoanDatum);
-
-  const loanUTxO: UTxO = {
-    txHash: "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
-    outputIndex: 1,
-    assets: {
-      lovelace: BigInt(10000000),
-    },
-    address: loanScriptAddress,
-    datumHash: undefined,
-    datum: datum,
-    scriptRef: undefined,
-  };
-
   const collateralUTxOInfo = getCollateralInfoFromLoan([offerLoanDatum]);
 
   const loanConfig: LoanConfig = {
-    loanUTxOs: [loanUTxO],
+    requestOutRefs: [
+      {
+        txHash:
+          "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
+        outputIndex: 1,
+      },
+    ],
     collateralUTxOsInfo: collateralUTxOInfo,
     collateralAsset: {
       policyId: asset.policyId,

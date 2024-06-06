@@ -12,9 +12,13 @@ export async function cancelLoanTx(
       new Constr(1, [new Constr(0, [new Constr(0, [1n])])])
     );
 
+    const loanUTxOs = await lucid.utxosByOutRef(
+      cancelLoanConfig.requestOutRefs
+    );
+
     const tx = lucid.newTx();
     const completedTx = await tx
-      .collectFrom(cancelLoanConfig.loanUTxOs, redeemer)
+      .collectFrom(loanUTxOs, redeemer)
       .attachSpendingValidator(loanValidator)
       .addSignerKey(cancelLoanConfig.lenderPubKeyHash)
       .compose(

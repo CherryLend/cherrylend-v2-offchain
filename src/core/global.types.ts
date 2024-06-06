@@ -15,6 +15,11 @@ type Service = {
   address: string;
 };
 
+export type RequestOutRef = {
+  txHash: string;
+  outputIndex: number;
+};
+
 export type OfferLoanConfig = {
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
@@ -40,7 +45,7 @@ export type CollateralUTxOsInfo = {
 };
 
 export type LoanConfig = {
-  loanUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   loanAsset: AssetClass;
   collateralAsset: AssetClass;
   interestAsset: AssetClass;
@@ -64,7 +69,7 @@ type InterestUTxOsInfo = {
 export type RepayLoanConfig = {
   loanAsset: AssetClass;
   interestAsset: AssetClass;
-  collateralUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   interestUTxOsInfo: InterestUTxOsInfo[];
   now: POSIXTime;
   borrowerPubKeyHash: string;
@@ -73,26 +78,26 @@ export type RepayLoanConfig = {
 
 export type CancelLoanConfig = {
   lenderPubKeyHash: string;
-  loanUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   service: Service;
 };
 
 export type InterestConfig = {
   lenderPubKeyHash: string;
-  interestUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   service: Service;
 };
 
-export type LiquidateCollateralConfig = {
+export type LiquidateLoanConfig = {
   lenderPubKeyHash: string;
-  collateralUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   now: POSIXTime;
   service: Service;
 };
 
 export type LiquidateLoanOracleConfig = {
   lenderPubKeyHash: string;
-  collateralUTxOs: UTxO[];
+  requestOutRefs: RequestOutRef[];
   now: POSIXTime;
   oracleScript: Address;
   stakeHash: string;
