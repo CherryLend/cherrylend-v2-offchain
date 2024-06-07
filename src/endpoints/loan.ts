@@ -5,6 +5,7 @@ import {
   CollateralDatum,
   LoanConfig,
   getValidators,
+  getCollateralInfoFromLoan,
 } from "../core/index.js";
 
 export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
@@ -43,6 +44,8 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
 
     const loanUTxOs = await lucid.utxosByOutRef(loanConfig.requestOutRefs);
 
+    const collateralUTxOsInfo = getCollateralInfoFromLoan(loanUTxOs);
+
     const tx = lucid
       .newTx()
       .collectFrom(loanUTxOs, redeemer)
@@ -52,18 +55,16 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       .validFrom(validFrom)
       .validTo(validTo);
 
-    for (let i = 0; i < loanConfig.collateralUTxOsInfo.length; i++) {
+    for (let i = 0; i < collateralUTxOsInfo.length; i++) {
       const collateralDatum: CollateralDatum = {
-        loanAmount: BigInt(loanConfig.collateralUTxOsInfo[i].loanAmount),
+        loanAmount: BigInt(collateralUTxOsInfo[i].loanAmount),
         loanAsset: loanAsset,
         collateralAsset: collateralAsset,
-        interestAmount: BigInt(
-          loanConfig.collateralUTxOsInfo[i].interestAmount
-        ),
+        interestAmount: BigInt(collateralUTxOsInfo[i].interestAmount),
         interestAsset: interestAsset,
-        loanDuration: BigInt(loanConfig.collateralUTxOsInfo[i].loanDuration),
+        loanDuration: BigInt(collateralUTxOsInfo[i].loanDuration),
         lendTime: BigInt(validFrom),
-        lenderPubKeyHash: loanConfig.collateralUTxOsInfo[i].lenderPubKeyHash,
+        lenderPubKeyHash: collateralUTxOsInfo[i].lenderPubKeyHash,
         totalInterestAmount: BigInt(loanConfig.totalInterestAmount),
         totalLoanAmount: BigInt(loanConfig.totalLoanAmount),
         borrowerPubKeyHash: loanConfig.borrowerPubKeyHash,
@@ -77,9 +78,7 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
           collateralScriptAddress,
           { inline: Data.to(collateralDatum, CollateralDatum) },
           {
-            [loanUnit]: BigInt(
-              loanConfig.collateralUTxOsInfo[i].collateralAmount
-            ),
+            [loanUnit]: BigInt(collateralUTxOsInfo[i].collateralAmount),
           }
         );
       } else {
@@ -87,10 +86,8 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
           collateralScriptAddress,
           { inline: Data.to(collateralDatum, CollateralDatum) },
           {
-            [loanUnit]: BigInt(
-              loanConfig.collateralUTxOsInfo[i].collateralAmount
-            ),
-            lovelace: BigInt(loanConfig.collateralUTxOsInfo[i].lovelaceAmount),
+            [loanUnit]: BigInt(collateralUTxOsInfo[i].collateralAmount),
+            lovelace: BigInt(collateralUTxOsInfo[i].lovelaceAmount),
           }
         );
       }

@@ -3,6 +3,7 @@ import {
   AssetClassD,
   InterestDatum,
   RepayLoanConfig,
+  getInterestInfoFromCollateral,
   getValidators,
   getValidityRange,
 } from "../core/index.js";
@@ -46,6 +47,8 @@ export async function repayLoanTx(
       repayLoanConfig.requestOutRefs
     );
 
+    const interestUTxOsInfo = getInterestInfoFromCollateral(collateralUTxOs);
+
     const tx = lucid.newTx();
     tx.collectFrom(collateralUTxOs, redeemer)
       .attachSpendingValidator(collateralValidator)
@@ -55,17 +58,13 @@ export async function repayLoanTx(
       .validTo(validTo)
       .addSignerKey(repayLoanConfig.borrowerPubKeyHash);
 
-    for (let i = 0; i < repayLoanConfig.interestUTxOsInfo.length; i++) {
+    for (let i = 0; i < interestUTxOsInfo.length; i++) {
       const interestDatum: InterestDatum = {
-        repayLoanAmount: BigInt(
-          repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount
-        ),
+        repayLoanAmount: BigInt(interestUTxOsInfo[i].repayLoanAmount),
         repayLoanAsset: loanAsset,
-        repayInterestAmount: BigInt(
-          repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
-        ),
+        repayInterestAmount: BigInt(interestUTxOsInfo[i].repayInterestAmount),
         repayInterestAsset: interestAsset,
-        lenderPubKeyHash: repayLoanConfig.interestUTxOsInfo[i].lenderPubKeyHash,
+        lenderPubKeyHash: interestUTxOsInfo[i].lenderPubKeyHash,
       };
 
       if (loanUnit === "lovelace") {
@@ -74,8 +73,8 @@ export async function repayLoanTx(
           { inline: Data.to(interestDatum, InterestDatum) },
           {
             [loanUnit]: BigInt(
-              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
-                repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+              interestUTxOsInfo[i].repayLoanAmount +
+                interestUTxOsInfo[i].repayInterestAmount
             ),
           }
         );
@@ -85,12 +84,10 @@ export async function repayLoanTx(
           { inline: Data.to(interestDatum, InterestDatum) },
           {
             [loanUnit]: BigInt(
-              repayLoanConfig.interestUTxOsInfo[i].repayLoanAmount +
-                repayLoanConfig.interestUTxOsInfo[i].repayInterestAmount
+              interestUTxOsInfo[i].repayLoanAmount +
+                interestUTxOsInfo[i].repayInterestAmount
             ),
-            lovelace: BigInt(
-              repayLoanConfig.interestUTxOsInfo[i].lovelaceAmount
-            ),
+            lovelace: BigInt(interestUTxOsInfo[i].lovelaceAmount),
           }
         );
       }

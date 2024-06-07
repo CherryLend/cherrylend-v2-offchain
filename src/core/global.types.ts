@@ -52,25 +52,16 @@ export type LoanConfig = {
   totalInterestAmount: number;
   totalLoanAmount: number;
   borrowerPubKeyHash: string;
-  collateralUTxOsInfo: CollateralUTxOsInfo[];
   now: POSIXTime;
   liquidationPolicy: string;
   service: Service;
   collateralFactor: number;
 };
 
-type InterestUTxOsInfo = {
-  repayLoanAmount: number;
-  repayInterestAmount: number;
-  lenderPubKeyHash: string;
-  lovelaceAmount: number;
-};
-
 export type RepayLoanConfig = {
   loanAsset: AssetClass;
   interestAsset: AssetClass;
   requestOutRefs: RequestOutRef[];
-  interestUTxOsInfo: InterestUTxOsInfo[];
   now: POSIXTime;
   borrowerPubKeyHash: string;
   service: Service;

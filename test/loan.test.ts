@@ -1,13 +1,14 @@
 import { expect, test, beforeEach } from "vitest";
-import { Data, Emulator, Lucid, UTxO } from "lucid-cardano";
+import { Emulator, Lucid } from "lucid-cardano";
 import {
   LoanConfig,
   loanTx,
   generateAccountSeedPhrase,
-  AssetClassD,
-  OfferLoanDatum,
   getValidators,
-  getCollateralInfoFromLoan,
+  registerRewardAddress,
+  offerLoanTx,
+  SelectLoanConfig,
+  selectLoanOffers,
 } from "../src/index.ts";
 
 type LucidContext = {
@@ -17,78 +18,116 @@ type LucidContext = {
 };
 
 beforeEach<LucidContext>(async (context) => {
-  const users = await generateAccountSeedPhrase({
-    lovelace: BigInt(100_000_000),
-  });
-  context.users = users;
-  context.emulator = new Emulator([users]);
+  context.users = {
+    account1: await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+    account2: await generateAccountSeedPhrase({
+      lovelace: BigInt(100_000_000),
+    }),
+  };
+
+  context.emulator = new Emulator([
+    context.users.account1,
+    context.users.account2,
+  ]);
   context.lucid = await Lucid.new(context.emulator);
 });
 
 test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
-  lucid.selectWalletFromSeed(users.seedPhrase);
+  lucid.selectWalletFromSeed(users.account1.seedPhrase);
 
-  const asset = {
-    policyId: "",
-    name: "",
-  };
+  const { loanRewardAddress } = await getValidators(lucid);
+
+  await registerRewardAddress(lucid, loanRewardAddress);
+
+  emulator.awaitBlock(100);
+
+  emulator.awaitBlock(100);
 
   const lenderPubKeyHash = lucid.utils.getAddressDetails(
     await lucid.wallet.address()
   ).paymentCredential?.hash;
 
-  const collateralAsset: AssetClassD = {
-    policyId: asset.policyId,
-    name: asset.name,
-  };
-
-  const interestAsset: AssetClassD = {
-    policyId: asset.policyId,
-    name: asset.name,
-  };
-
-  const loanAsset: AssetClassD = {
-    policyId: asset.policyId,
-    name: asset.name,
-  };
-
-  const offerLoanDatum: OfferLoanDatum = {
-    loanAmount: BigInt(10000000),
-    loanAsset: loanAsset,
-    collateralAmount: BigInt(10000000),
-    collateralAsset: collateralAsset,
-    interestAmount: BigInt(100),
-    interestAsset: interestAsset,
-    loanDuration: BigInt(10000000000),
-    lenderPubKeyHash: lenderPubKeyHash as string,
-    liquidationPolicy: "",
-    collateralFactor: BigInt(10),
-  };
-
-  const collateralUTxOInfo = getCollateralInfoFromLoan([offerLoanDatum]);
-
-  const loanConfig: LoanConfig = {
-    requestOutRefs: [
-      {
-        txHash:
-          "009e369a09d92ef324b361668978055d1d707941db2db670d79ea0f6f93a7f67",
-        outputIndex: 1,
-      },
-    ],
-    collateralUTxOsInfo: collateralUTxOInfo,
+  const offerLoan = await offerLoanTx(lucid, {
+    collateralAmount: 10000000,
     collateralAsset: {
-      policyId: asset.policyId,
-      name: asset.name,
+      policyId: "",
+      name: "",
     },
+    interestAmount: 10000000,
     interestAsset: {
-      policyId: asset.policyId,
-      name: asset.name,
+      policyId: "",
+      name: "",
     },
     loanAsset: {
-      policyId: asset.policyId,
-      name: asset.name,
+      policyId: "",
+      name: "",
     },
-    totalInterestAmount: 100,
+    loanDuration: 1000000000000,
+    lenderPubKeyHash: lenderPubKeyHash as string,
+    totalLoanAmount: 30000000,
+    amountInEachUTxO: 10000000,
+    liquidationPolicy: "",
+    service: {
+      fee: 2000000,
+      address: await lucid.wallet.address(),
+    },
+    collateralFactor: 10,
+  });
+
+  expect(offerLoan.type).toBe("success");
+
+  const cborHex = offerLoan.tx?.toString();
+  const offerLoanSigned = await lucid
+    .fromTx(cborHex as string)
+    .sign()
+    .complete();
+
+  await offerLoanSigned.submit();
+
+  emulator.awaitBlock(100);
+
+  const selectLoanConfig: SelectLoanConfig = {
+    loanAmount: 10000000,
+    loanAsset: {
+      policyId: "",
+      name: "",
+    },
+    collateralAsset: {
+      policyId: "",
+      name: "",
+    },
+    apr: 100,
+  };
+
+  const utxos = await selectLoanOffers(selectLoanConfig, lucid);
+
+  // @ts-ignore: Unreachable code error
+  const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
+
+  const loanOutputRef = allUTxOs.map((utxo) => {
+    return {
+      txHash: utxo.txHash,
+      outputIndex: utxo.outputIndex,
+    };
+  });
+
+  const loanConfig: LoanConfig = {
+    requestOutRefs: loanOutputRef,
+    collateralAsset: {
+      policyId: "",
+      name: "",
+    },
+    interestAsset: {
+      policyId: "",
+      name: "",
+    },
+    loanAsset: {
+      policyId: "",
+      name: "",
+    },
+    totalInterestAmount: 10000000,
     totalLoanAmount: 10000000,
     borrowerPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
@@ -99,8 +138,7 @@ test<LucidContext>("Can get loan offer", async ({ lucid, users, emulator }) => {
     },
     collateralFactor: 10,
   };
+  const loan = await loanTx(lucid, loanConfig);
 
-  const tx = await loanTx(lucid, loanConfig);
-
-  expect(tx.type).toBe("success");
+  expect(loan.type).toBe("success");
 });
