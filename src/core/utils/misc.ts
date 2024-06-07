@@ -4,11 +4,7 @@ import {
   InterestDatum,
   OfferLoanDatum,
 } from "../contract.types.js";
-import {
-  CollateralUTxOsInfo,
-  GetInterestInfoParams,
-  SelectLoanConfig,
-} from "../global.types.js";
+import { CollateralUTxOsInfo, SelectLoanConfig } from "../global.types.js";
 import { getValidators } from "./scripts.js";
 import { minLovelaceAmount } from "../constants.js";
 
