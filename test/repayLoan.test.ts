@@ -113,11 +113,7 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
   const utxos = await selectLoanOffers(selectLoanConfig, lucid);
 
   // @ts-ignore: Unreachable code error
-  const allDatums = utxos.map((utxo) => utxo.datum);
-  // @ts-ignore: Unreachable code error
   const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
-
-  const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
   const loanOutputRef = allUTxOs.map((utxo) => {
     return {
@@ -128,7 +124,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
 
   const loanConfig: LoanConfig = {
     requestOutRefs: loanOutputRef,
-    collateralUTxOsInfo: collateralUTxOInfo,
     collateralAsset: {
       policyId: "",
       name: "",
@@ -181,8 +176,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
     };
   });
 
-  const interestUTxOsInfo = getInterestInfoFromCollateral(collateral);
-
   const repayLoanConfig: RepayLoanConfig = {
     interestAsset: {
       policyId: "",
@@ -193,7 +186,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
       name: "",
     },
     requestOutRefs: collateralUTxORef,
-    interestUTxOsInfo: interestUTxOsInfo,
     now: emulator.now(),
     borrowerPubKeyHash: lenderPubKeyHash as string,
     service: {

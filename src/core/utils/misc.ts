@@ -274,10 +274,12 @@ export async function getLendersLiquidateLoan(
 }
 
 // Fold the loans into a UTxOs that contains unique lenders.
-export function getCollateralInfoFromLoan(
-  loanOfferUTxOsDatum: OfferLoanDatum[]
-) {
-  return loanOfferUTxOsDatum.reduce(
+export function getCollateralInfoFromLoan(utxos: UTxO[]) {
+  const loanOfferUTxOsDatum = utxos.map((utxo) => {
+    return toOfferLoanDatum(utxo.datum as string);
+  });
+
+  const info = loanOfferUTxOsDatum.reduce(
     (collateralInfo: CollateralUTxOsInfo[], datum) => {
       const loanAmount = parseInt(datum.loanAmount.toString());
       const collateralAmount = parseInt(datum.collateralAmount.toString());
@@ -317,18 +319,18 @@ export function getCollateralInfoFromLoan(
     },
     []
   );
+
+  return info;
 }
 
-export function getInterestInfoFromCollateral(
-  collateral: GetInterestInfoParams[]
-) {
-  return collateral.map((collateral) => {
-    const repayLoanAmount = parseInt(collateral.datum.loanAmount.toString());
-    const repayInterestAmount = parseInt(
-      collateral.datum.interestAmount.toString()
-    );
-    const lenderPubKeyHash = collateral.datum.lenderPubKeyHash;
-    const lovelaceAmount = Number(collateral.collateralUTxO.assets["lovelace"]);
+export function getInterestInfoFromCollateral(utxos: UTxO[]) {
+  const info = utxos.map((utxo) => {
+    const datum = toCollateralDatum(utxo.datum as string);
+
+    const repayLoanAmount = parseInt(datum.loanAmount.toString());
+    const repayInterestAmount = parseInt(datum.interestAmount.toString());
+    const lenderPubKeyHash = datum.lenderPubKeyHash;
+    const lovelaceAmount = Number(utxo.assets["lovelace"]);
 
     return {
       repayLoanAmount: repayLoanAmount,
@@ -337,6 +339,8 @@ export function getInterestInfoFromCollateral(
       lovelaceAmount: lovelaceAmount,
     };
   });
+
+  return info;
 }
 
 export function splitLoanAmount(amountInEachUTx0: number, amount: number) {

@@ -1,4 +1,4 @@
-import { Emulator, Lucid, UTxO } from "lucid-cardano";
+import { Emulator, Lucid } from "lucid-cardano";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   CancelLoanConfig,
@@ -13,8 +13,6 @@ import {
   cancelLoanTx,
   generateAccountSeedPhrase,
   getBorrowersCollateral,
-  getCollateralInfoFromLoan,
-  getInterestInfoFromCollateral,
   getLendersCollateral,
   getLendersInterestPayment,
   getLendersLiquidateLoan,
@@ -232,8 +230,6 @@ describe("All Flows Work", () => {
     const utxos = await selectLoanOffers(selectLoanConfig, lucid);
 
     // @ts-ignore: Unreachable code error
-    const allDatums = utxos.map((utxo) => utxo.datum);
-    // @ts-ignore: Unreachable code error
     const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
 
     const outputRef = allUTxOs.map((utxo) => {
@@ -243,11 +239,8 @@ describe("All Flows Work", () => {
       };
     });
 
-    const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
-
     const loanConfig: LoanConfig = {
       requestOutRefs: outputRef,
-      collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
         name: "",
@@ -404,11 +397,7 @@ describe("All Flows Work", () => {
     const utxos = await selectLoanOffers(selectLoanConfig, lucid);
 
     // @ts-ignore: Unreachable code error
-    const allDatums = utxos.map((utxo) => utxo.datum);
-    // @ts-ignore: Unreachable code error
     const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
-
-    const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
     const outputRef = allUTxOs.map((utxo) => {
       return {
@@ -419,7 +408,6 @@ describe("All Flows Work", () => {
 
     const loanConfig: LoanConfig = {
       requestOutRefs: outputRef,
-      collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
         name: "",
@@ -598,11 +586,7 @@ describe("All Flows Work", () => {
     const utxos = await selectLoanOffers(selectLoanConfig, lucid);
 
     // @ts-ignore: Unreachable code error
-    const allDatums = utxos.map((utxo) => utxo.datum);
-    // @ts-ignore: Unreachable code error
     const allUTxOs = utxos.map((utxo) => utxo.loanOfferUTxO);
-
-    const collateralUTxOInfo = getCollateralInfoFromLoan(allDatums);
 
     const loanOutputRef = allUTxOs.map((utxo) => {
       return {
@@ -613,7 +597,6 @@ describe("All Flows Work", () => {
 
     const loanConfig: LoanConfig = {
       requestOutRefs: loanOutputRef,
-      collateralUTxOsInfo: collateralUTxOInfo,
       collateralAsset: {
         policyId: "",
         name: "",
@@ -666,8 +649,6 @@ describe("All Flows Work", () => {
       };
     });
 
-    const interestUTxOsInfo = getInterestInfoFromCollateral(collateral);
-
     const repayLoanConfig: RepayLoanConfig = {
       interestAsset: {
         policyId: "",
@@ -678,7 +659,6 @@ describe("All Flows Work", () => {
         name: "",
       },
       requestOutRefs: collateralUTxORef,
-      interestUTxOsInfo: interestUTxOsInfo,
       now: emulator.now(),
       borrowerPubKeyHash: lenderPubKeyHash as string,
       service: {
