@@ -1,4 +1,11 @@
-import { Lucid, generateSeedPhrase, Assets } from "lucid-cardano";
+import {
+  Lucid,
+  generateSeedPhrase,
+  Assets,
+  ScriptType,
+  Script,
+} from "lucid-cardano";
+import { CBORHex } from "../global.types.js";
 
 export const generateAccountSeedPhrase = async (assets: Assets) => {
   const seedPhrase = generateSeedPhrase();
@@ -39,4 +46,12 @@ export async function registerRewardAddress(
   const signedTx = await tx.sign().complete();
 
   await signedTx.submit();
+}
+
+export function bytesToScript(bytes: CBORHex, type: ScriptType = "PlutusV2") {
+  const script: Script = {
+    type: type,
+    script: bytes,
+  };
+  return script;
 }

@@ -8,7 +8,7 @@ export async function interestTx(
   try {
     const { interestValidator } = await getValidators(lucid);
 
-    const getInterestRedeemer = Data.to(new Constr(0, [1n]));
+    const redeemer = Data.to(new Constr(0, [1n]));
 
     const interestUTxOs = await lucid.utxosByOutRef(
       getInterestConfig.requestOutRefs
@@ -16,7 +16,7 @@ export async function interestTx(
 
     const tx = lucid.newTx();
     const completedTx = await tx
-      .collectFrom(interestUTxOs, getInterestRedeemer)
+      .collectFrom(interestUTxOs, redeemer)
       .attachSpendingValidator(interestValidator)
       .addSignerKey(getInterestConfig.lenderPubKeyHash)
       .compose(
