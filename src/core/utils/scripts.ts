@@ -3,8 +3,6 @@ import {
   SpendingValidator,
   Lucid,
   WithdrawalValidator,
-  Script,
-  ScriptType,
   NativeScript,
   nativeScriptFromJson,
   applyDoubleCborEncoding,
@@ -15,28 +13,7 @@ import {
   collateralValidatorCBOR,
   loanValidatorCBOR,
 } from "../constants.js";
-import { CBORHex } from "../global.types.js";
-
-export function bytesToScript(bytes: CBORHex, type: ScriptType = "PlutusV2") {
-  const script: Script = {
-    type: type,
-    script: bytes,
-  };
-  return script;
-}
-
-export async function registerStakeKey(lucid: Lucid) {
-  const rewardAddress = await lucid.wallet.rewardAddress();
-
-  const tx = await lucid
-    .newTx()
-    .registerStake(rewardAddress as string)
-    .complete();
-
-  const signedTx = await tx.sign().complete();
-
-  await signedTx.submit();
-}
+import { bytesToScript } from "./utils.js";
 
 export function buildMultisigScript(pubKeyHashes: string[], required: number) {
   const nativeScript: NativeScript = {
