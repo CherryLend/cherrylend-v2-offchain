@@ -4,13 +4,11 @@ import {
   generateAccountSeedPhrase,
   getValidators,
   RepayLoanConfig,
-  getInterestInfoFromCollateral,
   repayLoanTx,
   registerRewardAddress,
   offerLoanTx,
   SelectLoanConfig,
   selectLoanOffers,
-  getCollateralInfoFromLoan,
   LoanConfig,
   loanTx,
   getBorrowersCollateral,
@@ -162,14 +160,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
   });
 
   const repayLoanConfig: RepayLoanConfig = {
-    interestAsset: {
-      policyId: "",
-      name: "",
-    },
-    loanAsset: {
-      policyId: "",
-      name: "",
-    },
     requestOutRefs: collateralUTxORef,
     now: emulator.now(),
     borrowerPubKeyHash: lenderPubKeyHash as string,

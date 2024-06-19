@@ -605,14 +605,6 @@ describe("All Flows Work", () => {
     });
 
     const repayLoanConfig: RepayLoanConfig = {
-      interestAsset: {
-        policyId: "",
-        name: "",
-      },
-      loanAsset: {
-        policyId: "",
-        name: "",
-      },
       requestOutRefs: collateralUTxORef,
       now: emulator.now(),
       borrowerPubKeyHash: lenderPubKeyHash as string,

@@ -53,8 +53,6 @@ export type LoanConfig = {
 };
 
 export type RepayLoanConfig = {
-  loanAsset: AssetClass;
-  interestAsset: AssetClass;
   requestOutRefs: RequestOutRef[];
   now: POSIXTime;
   borrowerPubKeyHash: string;

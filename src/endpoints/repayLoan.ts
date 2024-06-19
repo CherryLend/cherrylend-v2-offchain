@@ -6,6 +6,7 @@ import {
   getInterestInfoFromCollateral,
   getValidators,
   getValidityRange,
+  toCollateralDatum,
 } from "../core/index.js";
 
 export async function repayLoanTx(
@@ -20,21 +21,29 @@ export async function repayLoanTx(
       collateralRewardAddress,
     } = await getValidators(lucid);
 
-    const loanUnit = repayLoanConfig.loanAsset.policyId
+    const collateralUTxOs = await lucid.utxosByOutRef(
+      repayLoanConfig.requestOutRefs
+    );
+
+    const collateralDatum = toCollateralDatum(
+      collateralUTxOs[0].datum as string
+    );
+
+    const loanUnit = collateralDatum.loanAsset.policyId
       ? toUnit(
-          repayLoanConfig.loanAsset.policyId,
-          repayLoanConfig.loanAsset.name
+          collateralDatum.loanAsset.policyId,
+          collateralDatum.loanAsset.name
         )
       : "lovelace";
 
     const interestAsset: AssetClassD = {
-      policyId: repayLoanConfig.interestAsset.policyId,
-      name: repayLoanConfig.interestAsset.name,
+      policyId: collateralDatum.interestAsset.policyId,
+      name: collateralDatum.interestAsset.name,
     };
 
     const loanAsset: AssetClassD = {
-      policyId: repayLoanConfig.loanAsset.policyId,
-      name: repayLoanConfig.loanAsset.name,
+      policyId: collateralDatum.loanAsset.policyId,
+      name: collateralDatum.loanAsset.name,
     };
 
     const redeemer = Data.to(
@@ -42,10 +51,6 @@ export async function repayLoanTx(
     );
 
     const { validFrom, validTo } = getValidityRange(lucid, repayLoanConfig.now);
-
-    const collateralUTxOs = await lucid.utxosByOutRef(
-      repayLoanConfig.requestOutRefs
-    );
 
     const interestUTxOsInfo = getInterestInfoFromCollateral(collateralUTxOs);
 
