@@ -6,6 +6,7 @@ import {
   LoanConfig,
   getValidators,
   getCollateralInfoFromLoan,
+  toOfferLoanDatum,
 } from "../core/index.js";
 
 export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
@@ -17,23 +18,41 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
       collateralScriptAddress,
     } = await getValidators(lucid);
 
-    const loanUnit = loanConfig.loanAsset.policyId
-      ? toUnit(loanConfig.loanAsset.policyId, loanConfig.loanAsset.name)
+    const loanUTxOs = await lucid.utxosByOutRef(loanConfig.requestOutRefs);
+
+    const firstLoanUTxO = toOfferLoanDatum(loanUTxOs[0].datum as string);
+
+    const { totalLoanAmount, totalInterestAmount } = loanUTxOs.reduce(
+      (acc, utxo) => {
+        const datum = toOfferLoanDatum(utxo.datum as string);
+
+        acc.totalLoanAmount += Number(datum.loanAmount);
+        acc.totalInterestAmount += Number(datum.interestAmount);
+        return acc;
+      },
+      {
+        totalLoanAmount: 0,
+        totalInterestAmount: 0,
+      }
+    );
+
+    const loanUnit = firstLoanUTxO.loanAsset.policyId
+      ? toUnit(firstLoanUTxO.loanAsset.policyId, firstLoanUTxO.loanAsset.name)
       : "lovelace";
 
     const collateralAsset: AssetClassD = {
-      policyId: loanConfig.collateralAsset.policyId,
-      name: loanConfig.collateralAsset.name,
+      policyId: firstLoanUTxO.collateralAsset.policyId,
+      name: firstLoanUTxO.collateralAsset.name,
     };
 
     const interestAsset: AssetClassD = {
-      policyId: loanConfig.interestAsset.policyId,
-      name: loanConfig.interestAsset.name,
+      policyId: firstLoanUTxO.interestAsset.policyId,
+      name: firstLoanUTxO.interestAsset.name,
     };
 
     const loanAsset: AssetClassD = {
-      policyId: loanConfig.loanAsset.policyId,
-      name: loanConfig.loanAsset.name,
+      policyId: firstLoanUTxO.loanAsset.policyId,
+      name: firstLoanUTxO.loanAsset.name,
     };
 
     const { validFrom, validTo } = getValidityRange(lucid, loanConfig.now);
@@ -41,8 +60,6 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
     const redeemer = Data.to(
       new Constr(1, [new Constr(0, [new Constr(1, [1n])])])
     );
-
-    const loanUTxOs = await lucid.utxosByOutRef(loanConfig.requestOutRefs);
 
     const collateralUTxOsInfo = getCollateralInfoFromLoan(loanUTxOs);
 
@@ -65,11 +82,11 @@ export async function loanTx(lucid: Lucid, loanConfig: LoanConfig) {
         loanDuration: BigInt(collateralUTxOsInfo[i].loanDuration),
         lendTime: BigInt(validFrom),
         lenderPubKeyHash: collateralUTxOsInfo[i].lenderPubKeyHash,
-        totalInterestAmount: BigInt(loanConfig.totalInterestAmount),
-        totalLoanAmount: BigInt(loanConfig.totalLoanAmount),
+        totalInterestAmount: BigInt(totalInterestAmount),
+        totalLoanAmount: BigInt(totalLoanAmount),
         borrowerPubKeyHash: loanConfig.borrowerPubKeyHash,
         liquidationPolicy: loanConfig.liquidationPolicy,
-        collateralFactor: BigInt(loanConfig.collateralFactor),
+        collateralFactor: BigInt(firstLoanUTxO.collateralFactor),
       };
 
       // If it is a native asset loan, make sure the collateral contains the amount of ADA that the lender send when we split it

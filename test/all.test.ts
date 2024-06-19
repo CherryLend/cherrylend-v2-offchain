@@ -241,20 +241,6 @@ describe("All Flows Work", () => {
 
     const loanConfig: LoanConfig = {
       requestOutRefs: outputRef,
-      collateralAsset: {
-        policyId: "",
-        name: "",
-      },
-      interestAsset: {
-        policyId: "",
-        name: "",
-      },
-      loanAsset: {
-        policyId: "",
-        name: "",
-      },
-      totalInterestAmount: 10000000,
-      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
@@ -262,7 +248,6 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateralFactor: 10,
     };
     const loanConstructedTx = await loanTx(lucid, loanConfig);
 
@@ -408,20 +393,6 @@ describe("All Flows Work", () => {
 
     const loanConfig: LoanConfig = {
       requestOutRefs: outputRef,
-      collateralAsset: {
-        policyId: "",
-        name: "",
-      },
-      interestAsset: {
-        policyId: "",
-        name: "",
-      },
-      loanAsset: {
-        policyId: "",
-        name: "",
-      },
-      totalInterestAmount: 10000000,
-      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: liquidationPolicy,
@@ -429,7 +400,6 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateralFactor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 
@@ -597,20 +567,6 @@ describe("All Flows Work", () => {
 
     const loanConfig: LoanConfig = {
       requestOutRefs: loanOutputRef,
-      collateralAsset: {
-        policyId: "",
-        name: "",
-      },
-      interestAsset: {
-        policyId: "",
-        name: "",
-      },
-      loanAsset: {
-        policyId: "",
-        name: "",
-      },
-      totalInterestAmount: 10000000,
-      totalLoanAmount: 10000000,
       borrowerPubKeyHash: lenderPubKeyHash as string,
       now: emulator.now(),
       liquidationPolicy: "",
@@ -618,7 +574,6 @@ describe("All Flows Work", () => {
         fee: 2000000,
         address: await lucid.wallet.address(),
       },
-      collateralFactor: 10,
     };
     const loan = await loanTx(lucid, loanConfig);
 
