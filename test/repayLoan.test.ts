@@ -4,13 +4,11 @@ import {
   generateAccountSeedPhrase,
   getValidators,
   RepayLoanConfig,
-  getInterestInfoFromCollateral,
   repayLoanTx,
   registerRewardAddress,
   offerLoanTx,
   SelectLoanConfig,
   selectLoanOffers,
-  getCollateralInfoFromLoan,
   LoanConfig,
   loanTx,
   getBorrowersCollateral,
@@ -124,20 +122,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
 
   const loanConfig: LoanConfig = {
     requestOutRefs: loanOutputRef,
-    collateralAsset: {
-      policyId: "",
-      name: "",
-    },
-    interestAsset: {
-      policyId: "",
-      name: "",
-    },
-    loanAsset: {
-      policyId: "",
-      name: "",
-    },
-    totalInterestAmount: 10000000,
-    totalLoanAmount: 10000000,
     borrowerPubKeyHash: lenderPubKeyHash as string,
     now: emulator.now(),
     liquidationPolicy: "",
@@ -145,7 +129,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
       fee: 2000000,
       address: await lucid.wallet.address(),
     },
-    collateralFactor: 10,
   };
   const loan = await loanTx(lucid, loanConfig);
 
@@ -177,14 +160,6 @@ test<LucidContext>("Can repay loan", async ({ lucid, users, emulator }) => {
   });
 
   const repayLoanConfig: RepayLoanConfig = {
-    interestAsset: {
-      policyId: "",
-      name: "",
-    },
-    loanAsset: {
-      policyId: "",
-      name: "",
-    },
     requestOutRefs: collateralUTxORef,
     now: emulator.now(),
     borrowerPubKeyHash: lenderPubKeyHash as string,

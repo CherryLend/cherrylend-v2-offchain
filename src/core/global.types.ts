@@ -46,21 +46,13 @@ export type CollateralUTxOsInfo = {
 
 export type LoanConfig = {
   requestOutRefs: RequestOutRef[];
-  loanAsset: AssetClass;
-  collateralAsset: AssetClass;
-  interestAsset: AssetClass;
-  totalInterestAmount: number;
-  totalLoanAmount: number;
   borrowerPubKeyHash: string;
   now: POSIXTime;
   liquidationPolicy: string;
   service: Service;
-  collateralFactor: number;
 };
 
 export type RepayLoanConfig = {
-  loanAsset: AssetClass;
-  interestAsset: AssetClass;
   requestOutRefs: RequestOutRef[];
   now: POSIXTime;
   borrowerPubKeyHash: string;
